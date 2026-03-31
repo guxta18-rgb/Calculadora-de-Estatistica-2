@@ -18,7 +18,7 @@ Essa separação torna o projeto excelente para:
 - profissionais que precisam validar cálculos manualmente;
 - demonstrações didáticas de estatística descritiva;
 - comparação entre resultados exatos e aproximados.
-
+[🔗 Clique aqui para acessar o Demo ao vivo]([https://seu-link-aqui.com](https://guxta18-rgb.github.io/Calculadora-de-Estatistica-2/))
 ---
 
 ## 💻 Identidade Visual e Estética
