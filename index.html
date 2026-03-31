@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StatLab — Calculadora de Estatística Descritiva</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* =====================================================
+       VARIÁVEIS GLOBAIS DE TEMA — DARK MODE TERMINAL
+       ===================================================== */
+    :root {
+      --cor-fundo: #0a0c0f;
+      --cor-superficie: #111318;
+      --cor-borda: #1e2229;
+      --cor-borda-hover: #2a3040;
+      --cor-texto: #c8d0dc;
+      --cor-texto-dim: #5a6478;
+      --cor-destaque: #00e5a0;
+      /* verde neon principal */
+      --cor-destaque-2: #00c4e8;
+      /* ciano */
+      --cor-destaque-dim: rgba(0, 229, 160, 0.08);
+      --cor-erro: #ff4d6d;
+      --cor-aviso: #ffbe0b;
+      --fonte-mono: 'Share Tech Mono', monospace;
+      --fonte-sans: 'DM Sans', sans-serif;
+      --raio: 8px;
+      --sombra: 0 0 0 1px rgba(0, 229, 160, 0.15), 0 4px 24px rgba(0, 229, 160, 0.06);
+    }
+
+    /* =====================================================
+       RESET E BASE
+       ===================================================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      font-family: var(--fonte-sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 229, 160, 0.07) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255, 255, 255, 0.015) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255, 255, 255, 0.015) 40px);
+    }
+
+    /* =====================================================
+       SCANLINE OVERLAY — EFEITO TERMINAL
+       ===================================================== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom,
+          transparent 0px,
+          transparent 2px,
+          rgba(0, 0, 0, 0.15) 2px,
+          rgba(0, 0, 0, 0.15) 4px);
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* =====================================================
+       TIPOGRAFIA
+       ===================================================== */
+    .mono {
+      font-family: var(--fonte-mono);
+    }
+
+    h1 {
+      font-family: var(--fonte-mono);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    h2 {
+      font-family: var(--fonte-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cor-destaque);
+    }
+
+    /* =====================================================
+       LAYOUT PRINCIPAL
+       ===================================================== */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* =====================================================
+       CABEÇALHO
+       ===================================================== */
+    header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      display: block;
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cor-destaque), transparent);
+      margin: 1.5rem auto 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--cor-destaque-dim);
+      border: 1px solid rgba(0, 229, 160, 0.25);
+      border-radius: 20px;
+      padding: 0.3rem 1rem;
+      font-family: var(--fonte-mono);
+      font-size: 0.7rem;
+      color: var(--cor-destaque);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cor-destaque);
+      box-shadow: 0 0 6px var(--cor-destaque);
+      animation: pulsar 2s infinite;
+    }
+
+    @keyframes pulsar {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    header p {
+      color: var(--cor-texto-dim);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    /* =====================================================
+       PAINEL DE INPUT
+       ===================================================== */
+    .painel {
+      background: var(--cor-superficie);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .painel:focus-within {
+      border-color: rgba(0, 229, 160, 0.3);
+    }
+
+    /* Toggle de modo */
+    .toggle-modo {
+      display: flex;
+      background: var(--cor-fundo);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      overflow: hidden;
+      width: fit-content;
+      margin-bottom: 1.5rem;
+    }
+
+    .toggle-btn {
+      padding: 0.55rem 1.25rem;
+      font-family: var(--fonte-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--cor-texto-dim);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .toggle-btn.ativo {
+      background: var(--cor-destaque-dim);
+      color: var(--cor-destaque);
+    }
+
+    /* Tabs principais */
+    .tabs {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--cor-borda);
+      background: var(--cor-fundo);
+      color: var(--cor-texto-dim);
+      border-radius: var(--raio);
+      padding: 0.6rem 1rem;
+      font-family: var(--fonte-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .tab-btn.ativo {
+      color: var(--cor-destaque);
+      border-color: rgba(0, 229, 160, 0.4);
+      background: var(--cor-destaque-dim);
+    }
+
+    .aba-conteudo {
+      display: none;
+    }
+
+    .aba-conteudo.ativa {
+      display: block;
+    }
+
+    /* Textarea */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper label {
+      display: block;
+      font-family: var(--fonte-mono);
+      font-size: 0.7rem;
+      color: var(--cor-texto-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    #entrada-brutos {
+      width: 100%;
+      background: var(--cor-fundo);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      color: var(--cor-texto);
+      font-family: var(--fonte-mono);
+      font-size: 1rem;
+      padding: 0.9rem 1.1rem;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    #entrada-brutos:focus {
+      border-color: rgba(0, 229, 160, 0.4);
+      box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.07);
+    }
+
+    #entrada-brutos::placeholder {
+      color: var(--cor-texto-dim);
+    }
+
+    .hint {
+      font-size: 0.76rem;
+      color: var(--cor-texto-dim);
+      margin-top: 0.5rem;
+    }
+
+    /* Botões de ação */
+    .acoes {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--raio);
+      font-family: var(--fonte-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .btn-primario {
+      background: var(--cor-destaque);
+      color: #000;
+      font-weight: 600;
+      border-color: var(--cor-destaque);
+      box-shadow: 0 0 16px rgba(0, 229, 160, 0.25);
+    }
+
+    .btn-primario:hover {
+      background: #00ffc0;
+      box-shadow: 0 0 28px rgba(0, 229, 160, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secundario {
+      background: transparent;
+      color: var(--cor-texto-dim);
+      border-color: var(--cor-borda);
+    }
+
+    .btn-secundario:hover {
+      border-color: var(--cor-borda-hover);
+      color: var(--cor-texto);
+    }
+
+    .btn-exemplo {
+      background: rgba(0, 196, 232, 0.08);
+      color: var(--cor-destaque-2);
+      border-color: rgba(0, 196, 232, 0.25);
+    }
+
+    .btn-exemplo:hover {
+      background: rgba(0, 196, 232, 0.15);
+    }
+
+    .tabela-entrada th,
+    .tabela-entrada td {
+      text-align: center;
+    }
+
+    .tabela-entrada input {
+      width: 100%;
+      background: var(--cor-fundo);
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      color: var(--cor-texto);
+      font-family: var(--fonte-mono);
+      font-size: 0.82rem;
+      padding: 0.45rem 0.5rem;
+      text-align: center;
+    }
+
+    .resumo-sturges {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .resumo-sturges .info-item {
+      padding: 0.7rem 0.85rem;
+    }
+
+    /* =====================================================
+       MENSAGEM DE ERRO
+       ===================================================== */
+    #msg-erro {
+      display: none;
+      background: rgba(255, 77, 109, 0.08);
+      border: 1px solid rgba(255, 77, 109, 0.3);
+      border-radius: var(--raio);
+      padding: 0.75rem 1rem;
+      color: var(--cor-erro);
+      font-family: var(--fonte-mono);
+      font-size: 0.82rem;
+      margin-top: 1rem;
+    }
+
+    /* =====================================================
+       SEÇÃO DE RESULTADOS
+       ===================================================== */
+    #secao-resultados {
+      display: none;
+      animation: fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =====================================================
+       INFO DO CONJUNTO (ROL + STURGES)
+       ===================================================== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+      background: var(--cor-superficie);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      padding: 0.85rem 1rem;
+    }
+
+    .info-item .rotulo {
+      font-family: var(--fonte-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cor-texto-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    .info-item .valor {
+      font-family: var(--fonte-mono);
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    /* =====================================================
+       ROL — DADOS ORDENADOS
+       ===================================================== */
+    .rol-container {
+      background: var(--cor-superficie);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .rol-dados {
+      font-family: var(--fonte-mono);
+      font-size: 0.82rem;
+      color: var(--cor-destaque-2);
+      word-break: break-all;
+      margin-top: 0.5rem;
+      line-height: 1.8;
+    }
+
+    /* =====================================================
+       TABELA DE FREQUÊNCIAS
+       ===================================================== */
+    .tabela-container {
+      background: var(--cor-superficie);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: rgba(0, 229, 160, 0.06);
+      border-bottom: 1px solid var(--cor-borda);
+    }
+
+    th {
+      font-family: var(--fonte-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cor-destaque);
+      padding: 0.85rem 1rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child {
+      text-align: left;
+    }
+
+    td {
+      font-family: var(--fonte-mono);
+      font-size: 0.82rem;
+      color: var(--cor-texto);
+      padding: 0.7rem 1rem;
+      text-align: right;
+      border-bottom: 1px solid rgba(30, 34, 41, 0.8);
+      transition: background 0.15s;
+    }
+
+    td:first-child {
+      text-align: left;
+      color: var(--cor-destaque-2);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(0, 229, 160, 0.03);
+    }
+
+    tfoot tr {
+      background: rgba(0, 229, 160, 0.04);
+    }
+
+    tfoot td {
+      color: var(--cor-destaque);
+      font-weight: 600;
+      border-top: 1px solid var(--cor-borda);
+      border-bottom: none;
+    }
+
+    /* Linha da mediana (destacada) */
+    tr.linha-mediana td {
+      background: rgba(0, 196, 232, 0.05);
+    }
+
+    tr.linha-mediana td:first-child {
+      color: var(--cor-aviso);
+    }
+
+    /* Linha da moda (destacada) */
+    tr.linha-moda td {
+      background: rgba(0, 229, 160, 0.05);
+    }
+
+    tr.linha-moda td:first-child {
+      color: var(--cor-destaque);
+    }
+
+    /* =====================================================
+       CARDS DE RESULTADOS
+       ===================================================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--cor-superficie);
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio);
+      padding: 1.25rem 1.25rem 1rem;
+      position: relative;
+      cursor: default;
+      transition: border-color 0.2s, transform 0.2s;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cor-destaque), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(0, 229, 160, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card.ciano::before {
+      background: linear-gradient(90deg, transparent, var(--cor-destaque-2), transparent);
+    }
+
+    .card.ciano:hover {
+      border-color: rgba(0, 196, 232, 0.25);
+    }
+
+    .card-destaque {
+      border-color: rgba(0, 229, 160, 0.45);
+      box-shadow: var(--sombra);
+    }
+
+    .card-icone {
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .card-rotulo {
+      font-family: var(--fonte-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cor-texto-dim);
+      margin-bottom: 0.4rem;
+    }
+
+    .card-valor {
+      font-family: var(--fonte-mono);
+      font-size: 1.7rem;
+      color: #fff;
+      line-height: 1.1;
+    }
+
+    .card-valor.verde {
+      color: var(--cor-destaque);
+    }
+
+    .card-valor.ciano-txt {
+      color: var(--cor-destaque-2);
+    }
+
+    .card-formula {
+      font-family: var(--fonte-mono);
+      font-size: 0.65rem;
+      color: var(--cor-texto-dim);
+      margin-top: 0.5rem;
+    }
+
+    /* =====================================================
+       TOOLTIP
+       ===================================================== */
+    .tooltip-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip-icone {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--cor-texto-dim);
+      font-size: 0.62rem;
+      color: var(--cor-texto-dim);
+      cursor: help;
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .card:hover .tooltip-icone {
+      border-color: var(--cor-destaque);
+      color: var(--cor-destaque);
+    }
+
+    .tooltip-box {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: -8px;
+      width: 220px;
+      background: #1a1e26;
+      border: 1px solid var(--cor-borda-hover);
+      border-radius: 6px;
+      padding: 0.65rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--cor-texto);
+      line-height: 1.5;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+    }
+
+    .tooltip-box::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      background: #1a1e26;
+      border-right: 1px solid var(--cor-borda-hover);
+      border-bottom: 1px solid var(--cor-borda-hover);
+      transform: rotate(45deg);
+    }
+
+    .tooltip-wrapper:hover .tooltip-box {
+      display: block;
+    }
+
+    /* =====================================================
+       LEGENDA DE CORES NA TABELA
+       ===================================================== */
+    .legenda {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      font-size: 0.74rem;
+      color: var(--cor-texto-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legenda-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* =====================================================
+       DIVISOR DE SEÇÃO
+       ===================================================== */
+    .divisor {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.75rem 0 1.25rem;
+    }
+
+    .divisor h2 {
+      margin: 0;
+    }
+
+    .divisor::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--cor-borda);
+    }
+
+    /* =====================================================
+       RODAPÉ
+       ===================================================== */
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      font-family: var(--fonte-mono);
+      font-size: 0.68rem;
+      color: var(--cor-texto-dim);
+      border-top: 1px solid var(--cor-borda);
+      margin-top: 3rem;
+    }
+
+    /* =====================================================
+       RESPONSIVIDADE
+       ===================================================== */
+    @media (max-width: 600px) {
+      .painel {
+        padding: 1.25rem;
+      }
+
+      .acoes {
+        flex-direction: column;
+      }
+
+      .btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- ============================
+       CABEÇALHO
+       ============================ -->
+    <header>
+      <div class="badge">StatLab v1.0</div>
+      <h1>Calculadora Estatística</h1>
+      <p>Estatística Descritiva para Dados Simples e Agrupados</p>
+    </header>
+
+    <!-- ============================
+       PAINEL DE ENTRADA
+       ============================ -->
+    <div class="painel">
+      <h2 style="margin-bottom:1.25rem;">Entrada de Dados</h2>
+
+      <div class="tabs">
+        <button id="tab-brutos" class="tab-btn ativo" onclick="UI.alternarAba('brutos')">Dados Brutos</button>
+        <button id="tab-agrupados" class="tab-btn" onclick="UI.alternarAba('agrupados')">Tabela de Frequências</button>
+      </div>
+
+      <div id="aba-brutos" class="aba-conteudo ativa">
+        <div class="input-wrapper">
+          <label for="entrada-brutos">VALORES (separados por vírgula ou espaço)</label>
+          <textarea id="entrada-brutos" placeholder="Ex: 12, 15, 18, 20, 22, 25, 27, 30, 33, 35"></textarea>
+          <p class="hint">Insira os dados brutos para calcular tendência central, dispersão, quartis e outliers.</p>
+        </div>
+        <div class="hint" style="margin-top:0.6rem;">
+          Base da dispersão:
+          <label style="margin-left:0.55rem;">
+            <input type="radio" name="tipo-dispersao" value="amostra" checked>
+            Amostra (n-1)
+          </label>
+          <label style="margin-left:0.85rem;">
+            <input type="radio" name="tipo-dispersao" value="populacao">
+            População (n)
+          </label>
+        </div>
+        <div class="acoes">
+          <button class="btn btn-primario" onclick="UI.calcularBrutos()">▶ Calcular Dados Brutos</button>
+          <button class="btn btn-exemplo" onclick="UI.sugerirClassesSturges()">⚡ Sugerir Classes (Sturges)</button>
+          <button class="btn btn-exemplo" onclick="UI.gerarExemploBrutos()">↺ Exemplo</button>
+          <button class="btn btn-secundario" onclick="UI.limparBrutos()">✕ Limpar</button>
+        </div>
+      </div>
+
+      <div id="aba-agrupados" class="aba-conteudo">
+        <div id="resumo-sturges" class="resumo-sturges"></div>
+        <div class="hint" style="margin-bottom:0.8rem;">
+          Preencha os intervalos e frequências absolutas (fi). Use "Sugerir Classes (Sturges)" na aba de dados brutos para autopreencher.
+        </div>
+        <div class="tabela-container">
+          <table class="tabela-entrada">
+            <thead>
+              <tr>
+                <th>Limite Inferior</th>
+                <th>Limite Superior</th>
+                <th>fi</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-entrada-agrupados"></tbody>
+          </table>
+        </div>
+        <div class="acoes">
+          <button class="btn btn-secundario" onclick="UI.adicionarLinhaAgrupada()">+ Classe</button>
+          <button class="btn btn-secundario" onclick="UI.removerLinhaAgrupada()">− Classe</button>
+          <button class="btn btn-primario" onclick="UI.calcularAgrupados()">▶ Calcular Tabela</button>
+          <button class="btn btn-exemplo" onclick="UI.gerarExemploAgrupados()">↺ Exemplo</button>
+          <button class="btn btn-secundario" onclick="UI.limparAgrupados()">✕ Limpar</button>
+        </div>
+      </div>
+
+      <!-- Erro -->
+      <div id="msg-erro"></div>
+    </div>
+
+    <!-- ============================
+       RESULTADOS
+       ============================ -->
+    <div id="secao-resultados">
+
+      <!-- Informações do conjunto -->
+      <div class="divisor">
+        <h2>Informações do Conjunto</h2>
+      </div>
+      <div class="info-grid" id="info-grid"></div>
+
+      <!-- ROL (apenas para dados simples) -->
+      <div id="secao-rol" style="display:none;">
+        <div class="divisor">
+          <h2>ROL — Dados Ordenados</h2>
+        </div>
+        <div class="rol-container">
+          <div id="rol-dados" class="rol-dados"></div>
+        </div>
+      </div>
+
+      <!-- Tabela de frequências -->
+      <div class="divisor">
+        <h2>Tabela de Frequências</h2>
+      </div>
+      <div class="legenda">
+        <div class="legenda-item">
+          <div class="legenda-dot" style="background:var(--cor-destaque);opacity:0.7;"></div>
+          Classe modal (Moda)
+        </div>
+        <div class="legenda-item">
+          <div class="legenda-dot" style="background:var(--cor-destaque-2);opacity:0.7;"></div>
+          Classe mediana (Mediana)
+        </div>
+      </div>
+      <div class="tabela-container">
+        <table id="tabela-freq">
+          <thead>
+            <tr>
+              <th>Classe / Intervalo</th>
+              <th title="Frequência absoluta">fi</th>
+              <th title="Frequência acumulada">Fi</th>
+              <th title="Frequência relativa (%)">fr (%)</th>
+              <th title="Ponto médio">xi</th>
+              <th title="fi × xi">fi·xi</th>
+              <th title="fi × xi²">fi·xi²</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela"></tbody>
+          <tfoot id="rodape-tabela"></tfoot>
+        </table>
+      </div>
+
+      <!-- Cards de resultados -->
+      <div class="divisor">
+        <h2>Medidas de Tendência Central</h2>
+      </div>
+      <div class="cards-grid" id="cards-tendencia"></div>
+
+      <div class="divisor">
+        <h2>Medidas de Dispersão</h2>
+      </div>
+      <div class="cards-grid" id="cards-dispersao"></div>
+
+    </div><!-- /secao-resultados -->
+
+  </div><!-- /container -->
+
+  <footer>
+    StatLab — Calculadora de Estatística Descritiva &nbsp;|&nbsp;
+    Fórmulas: Czuber (Moda) · Posição (Mediana) · Sturges (Classes)
+  </footer>
+
+
+  <!-- ============================================================
+     JAVASCRIPT — LÓGICA DE NEGÓCIO
+     VARIÁVEIS EM PORTUGUÊS PARA FACILITAR ESTUDO ACADÊMICO
+     ============================================================ -->
+  <script>
+    const Utils = {
+      arredondar(valor, casas = 4) {
+        return Math.round(valor * Math.pow(10, casas)) / Math.pow(10, casas);
+      },
+      formatar(valor, casas = 4) {
+        return this.arredondar(valor, casas).toLocaleString('pt-BR', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: casas
+        });
+      },
+      analisarEntrada(texto) {
+        return texto.trim().replace(/,/g, ' ').split(/\s+/).filter(Boolean).map((s) => {
+          const n = parseFloat(s.replace(',', '.'));
+          if (Number.isNaN(n)) throw new Error(`"${s}" não é um número válido.`);
+          return n;
+        });
+      }
+    };
+
+    const ModuloOrganizacao = {
+      sturges(dados) {
+        const n = dados.length;
+        const min = Math.min(...dados);
+        const max = Math.max(...dados);
+        const AA = max - min;
+        const k = Math.max(1, Math.ceil(1 + 3.322 * Math.log10(n)));
+        const h = AA === 0 ? 1 : AA / k;
+        return { n, min, max, AA, k, h };
+      },
+      gerarIntervalos(min, k, h) {
+        const intervalos = [];
+        for (let i = 0; i < k; i++) {
+          const li = min + i * h;
+          const ls = i === k - 1 ? min + k * h + Number.EPSILON : min + (i + 1) * h;
+          intervalos.push({ li, ls });
+        }
+        return intervalos;
+      },
+      frequenciasPorIntervalo(dados, intervalos) {
+        return intervalos.map((intervalo) => dados.filter((valor) => valor >= intervalo.li && valor < intervalo.ls).length);
+      }
+    };
+
+    const ModuloDadosBrutos = {
+      media(dados) {
+        return dados.reduce((acc, v) => acc + v, 0) / dados.length;
+      },
+      mediana(ordenados) {
+        const n = ordenados.length;
+        const meio = Math.floor(n / 2);
+        return n % 2 === 0 ? (ordenados[meio - 1] + ordenados[meio]) / 2 : ordenados[meio];
+      },
+      moda(dados) {
+        const freq = new Map();
+        dados.forEach((v) => freq.set(v, (freq.get(v) || 0) + 1));
+        const maxFreq = Math.max(...freq.values());
+        if (maxFreq <= 1) return [];
+        return [...freq.entries()].filter(([, f]) => f === maxFreq).map(([v]) => v);
+      },
+      variancia(dados, media, tipo = 'amostra') {
+        const somaQuadrados = dados.reduce((acc, v) => acc + Math.pow(v - media, 2), 0);
+        if (tipo === 'amostra') {
+          if (dados.length < 2) throw new Error('Para cálculo amostral são necessários pelo menos 2 valores.');
+          return somaQuadrados / (dados.length - 1);
+        }
+        return somaQuadrados / dados.length;
+      },
+      percentil(ordenados, p) {
+        const idx = (ordenados.length - 1) * p;
+        const lo = Math.floor(idx);
+        const hi = Math.ceil(idx);
+        if (lo === hi) return ordenados[lo];
+        return ordenados[lo] + (ordenados[hi] - ordenados[lo]) * (idx - lo);
+      },
+      quartis(ordenados) {
+        const Q1 = this.percentil(ordenados, 0.25);
+        const Q2 = this.percentil(ordenados, 0.5);
+        const Q3 = this.percentil(ordenados, 0.75);
+        return { Q1, Q2, Q3 };
+      },
+      outliers(ordenados, quartis) {
+        const IQR = quartis.Q3 - quartis.Q1;
+        const limiteInferior = quartis.Q1 - 1.5 * IQR;
+        const limiteSuperior = quartis.Q3 + 1.5 * IQR;
+        const outliers = ordenados.filter((v) => v < limiteInferior || v > limiteSuperior);
+        return { IQR, limiteInferior, limiteSuperior, outliers };
+      },
+      calcular(dados, tipoDispersao = 'amostra') {
+        const ordenados = [...dados].sort((a, b) => a - b);
+        const media = this.media(dados);
+        const mediana = this.mediana(ordenados);
+        const moda = this.moda(dados);
+        const variancia = this.variancia(dados, media, tipoDispersao);
+        const desvioPadrao = Math.sqrt(variancia);
+        const cv = media === 0 ? 0 : (desvioPadrao / media) * 100;
+        const quartis = this.quartis(ordenados);
+        const analiseOutliers = this.outliers(ordenados, quartis);
+        return { n: dados.length, min: ordenados[0], max: ordenados[ordenados.length - 1], ordenados, media, mediana, moda, variancia, desvioPadrao, cv, quartis, analiseOutliers, tipoDispersao };
+      }
+    };
+
+    const ModuloDadosAgrupados = {
+      montarTabela(classes) {
+        const n = classes.reduce((acc, c) => acc + c.fi, 0);
+        let Fi = 0;
+        return classes.map((c) => {
+          const xi = (c.li + c.ls) / 2;
+          const fixi = c.fi * xi;
+          const fixi2 = c.fi * Math.pow(xi, 2);
+          Fi += c.fi;
+          return { ...c, xi, fixi, fixi2, Fi, fr: n === 0 ? 0 : (c.fi / n) * 100 };
+        });
+      },
+      media(tabela, n) {
+        return tabela.reduce((acc, l) => acc + l.fixi, 0) / n;
+      },
+      modaCzuber(tabela) {
+        const indiceModa = tabela.reduce((maxIdx, linha, idx, arr) => (linha.fi > arr[maxIdx].fi ? idx : maxIdx), 0);
+        const modal = tabela[indiceModa];
+        const fant = indiceModa > 0 ? tabela[indiceModa - 1].fi : 0;
+        const fpos = indiceModa < tabela.length - 1 ? tabela[indiceModa + 1].fi : 0;
+        const h = modal.ls - modal.li;
+        const denom = (2 * modal.fi) - fant - fpos;
+        const moda = denom === 0 ? modal.xi : modal.li + ((modal.fi - fant) / denom) * h;
+        return { moda, indiceModa };
+      },
+      mediana(tabela, n) {
+        const pos = n / 2;
+        const indiceMediana = tabela.findIndex((l) => l.Fi >= pos);
+        const classe = tabela[indiceMediana];
+        const Fant = indiceMediana > 0 ? tabela[indiceMediana - 1].Fi : 0;
+        const h = classe.ls - classe.li;
+        const mediana = classe.li + ((pos - Fant) / classe.fi) * h;
+        return { mediana, indiceMediana };
+      },
+      variancia(tabela, n, media) {
+        const soma = tabela.reduce((acc, l) => acc + l.fixi2, 0);
+        return (soma / n) - Math.pow(media, 2);
+      },
+      calcular(classes) {
+        const tabela = this.montarTabela(classes);
+        const n = tabela.reduce((acc, l) => acc + l.fi, 0);
+        if (n === 0) throw new Error('A soma das frequências deve ser maior que zero.');
+        const media = this.media(tabela, n);
+        const { moda, indiceModa } = this.modaCzuber(tabela);
+        const { mediana, indiceMediana } = this.mediana(tabela, n);
+        const variancia = this.variancia(tabela, n, media);
+        const desvioPadrao = Math.sqrt(Math.abs(variancia));
+        const cv = media === 0 ? 0 : (desvioPadrao / media) * 100;
+        return { tabela, n, media, moda, mediana, variancia, desvioPadrao, cv, indiceModa, indiceMediana };
+      }
+    };
+
+    const UI = {
+      abaAtual: 'brutos',
+      sugeridoSturges: null,
+      alternarAba(aba) {
+        this.abaAtual = aba;
+        document.getElementById('tab-brutos').classList.toggle('ativo', aba === 'brutos');
+        document.getElementById('tab-agrupados').classList.toggle('ativo', aba === 'agrupados');
+        document.getElementById('aba-brutos').classList.toggle('ativa', aba === 'brutos');
+        document.getElementById('aba-agrupados').classList.toggle('ativa', aba === 'agrupados');
+      },
+      mostrarErro(msg) {
+        const el = document.getElementById('msg-erro');
+        el.style.display = 'block';
+        el.textContent = '⚠ ' + msg;
+      },
+      limparErro() {
+        const el = document.getElementById('msg-erro');
+        el.style.display = 'none';
+        el.textContent = '';
+      },
+      esconderResultados() {
+        document.getElementById('secao-resultados').style.display = 'none';
+      },
+      adicionarLinhaAgrupada(li = '', ls = '', fi = '') {
+        const corpo = document.getElementById('corpo-entrada-agrupados');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="number" step="any" value="${li}"></td>
+          <td><input type="number" step="any" value="${ls}"></td>
+          <td><input type="number" min="0" step="1" value="${fi}"></td>
+        `;
+        corpo.appendChild(tr);
+      },
+      removerLinhaAgrupada() {
+        const corpo = document.getElementById('corpo-entrada-agrupados');
+        if (corpo.children.length > 1) corpo.removeChild(corpo.lastElementChild);
+      },
+      limparBrutos() {
+        document.getElementById('entrada-brutos').value = '';
+        this.limparErro();
+        this.esconderResultados();
+      },
+      limparAgrupados() {
+        const corpo = document.getElementById('corpo-entrada-agrupados');
+        corpo.innerHTML = '';
+        this.adicionarLinhaAgrupada();
+        document.getElementById('resumo-sturges').innerHTML = '';
+        this.limparErro();
+        this.esconderResultados();
+      },
+      gerarExemploBrutos() {
+        document.getElementById('entrada-brutos').value = '23 25 28 30 32 35 37 40 42 45 28 33 36 38 41 44 29 31 34 60';
+      },
+      gerarExemploAgrupados() {
+        const exemplo = [
+          [10, 20, 4],
+          [20, 30, 7],
+          [30, 40, 8],
+          [40, 50, 5]
+        ];
+        const corpo = document.getElementById('corpo-entrada-agrupados');
+        corpo.innerHTML = '';
+        exemplo.forEach((e) => this.adicionarLinhaAgrupada(e[0], e[1], e[2]));
+      },
+      lerBrutos() {
+        const texto = document.getElementById('entrada-brutos').value;
+        if (!texto.trim()) throw new Error('Insira os dados brutos antes de calcular.');
+        const dados = Utils.analisarEntrada(texto);
+        if (dados.length < 2) throw new Error('São necessários pelo menos 2 valores.');
+        return dados;
+      },
+      lerTabelaAgrupada() {
+        const linhas = [...document.querySelectorAll('#corpo-entrada-agrupados tr')];
+        const classes = linhas.map((tr) => {
+          const [li, ls, fi] = [...tr.querySelectorAll('input')].map((i) => parseFloat(i.value));
+          return { li, ls, fi };
+        }).filter((l) => !Number.isNaN(l.li) && !Number.isNaN(l.ls) && !Number.isNaN(l.fi));
+        if (classes.length === 0) throw new Error('Preencha ao menos uma linha válida na tabela agrupada.');
+        classes.forEach((c, idx) => {
+          if (c.ls <= c.li) throw new Error(`Classe ${idx + 1}: limite superior deve ser maior que o inferior.`);
+          if (c.fi < 0) throw new Error(`Classe ${idx + 1}: frequência fi não pode ser negativa.`);
+        });
+        return classes;
+      },
+      sugerirClassesSturges() {
+        this.limparErro();
+        try {
+          const dados = this.lerBrutos();
+          const resumo = ModuloOrganizacao.sturges(dados);
+          const intervalos = ModuloOrganizacao.gerarIntervalos(resumo.min, resumo.k, resumo.h);
+          const frequencias = ModuloOrganizacao.frequenciasPorIntervalo(dados, intervalos);
+          const classes = intervalos.map((it, i) => ({ li: it.li, ls: it.ls, fi: frequencias[i] }));
+          this.sugeridoSturges = { ...resumo, classes };
+          this.preencherTabelaAgrupada(classes);
+          this.renderizarResumoSturges(resumo);
+          this.alternarAba('agrupados');
+        } catch (e) {
+          this.mostrarErro(e.message);
+        }
+      },
+      preencherTabelaAgrupada(classes) {
+        const corpo = document.getElementById('corpo-entrada-agrupados');
+        corpo.innerHTML = '';
+        classes.forEach((c) => this.adicionarLinhaAgrupada(Utils.arredondar(c.li, 4), Utils.arredondar(c.ls, 4), c.fi));
+      },
+      obterTipoDispersaoBrutos() {
+        const selecionado = document.querySelector('input[name="tipo-dispersao"]:checked');
+        return selecionado ? selecionado.value : 'amostra';
+      },
+      calcularBrutos() {
+        this.limparErro();
+        try {
+          const dados = this.lerBrutos();
+          const tipoDispersao = this.obterTipoDispersaoBrutos();
+          const brutos = ModuloDadosBrutos.calcular(dados, tipoDispersao);
+          const sturges = ModuloOrganizacao.sturges(dados);
+          const intervalos = ModuloOrganizacao.gerarIntervalos(sturges.min, sturges.k, sturges.h);
+          const frequencias = ModuloOrganizacao.frequenciasPorIntervalo(dados, intervalos);
+          const agrupado = ModuloDadosAgrupados.calcular(intervalos.map((it, i) => ({ li: it.li, ls: it.ls, fi: frequencias[i] })));
+          this.renderizarInfoBrutos(brutos, sturges);
+          this.renderizarRol(brutos.ordenados);
+          this.renderizarTabela(agrupado.tabela, agrupado.indiceModa, agrupado.indiceMediana);
+          this.renderizarCardsBrutos(brutos);
+          this.exibirResultados();
+        } catch (e) {
+          this.mostrarErro(e.message);
+        }
+      },
+      calcularAgrupados() {
+        this.limparErro();
+        try {
+          const classes = this.lerTabelaAgrupada();
+          const agrupado = ModuloDadosAgrupados.calcular(classes);
+          const minimo = Math.min(...classes.map((c) => c.li));
+          const maximo = Math.max(...classes.map((c) => c.ls));
+          const AA = maximo - minimo;
+          const hMedio = classes.reduce((acc, c) => acc + (c.ls - c.li), 0) / classes.length;
+          this.renderizarInfoAgrupados(agrupado.n, classes.length, hMedio, AA, minimo, maximo);
+          document.getElementById('secao-rol').style.display = 'none';
+          this.renderizarTabela(agrupado.tabela, agrupado.indiceModa, agrupado.indiceMediana);
+          this.renderizarCardsAgrupados(agrupado);
+          this.exibirResultados();
+        } catch (e) {
+          this.mostrarErro(e.message);
+        }
+      },
+      renderizarResumoSturges(resumo) {
+        const alvo = document.getElementById('resumo-sturges');
+        alvo.innerHTML = `
+          <div class="info-item"><div class="rotulo">AA</div><div class="valor mono">${Utils.formatar(resumo.AA, 4)}</div></div>
+          <div class="info-item"><div class="rotulo">k (Sturges)</div><div class="valor mono">${resumo.k}</div></div>
+          <div class="info-item"><div class="rotulo">h</div><div class="valor mono">${Utils.formatar(resumo.h, 4)}</div></div>
+        `;
+      },
+      renderizarInfoBrutos(brutos, sturges) {
+        const itens = [
+          { rotulo: 'n (Total)', valor: brutos.n },
+          { rotulo: 'Mínimo', valor: Utils.formatar(brutos.min) },
+          { rotulo: 'Máximo', valor: Utils.formatar(brutos.max) },
+          { rotulo: 'Amplitude Amostral (AA)', valor: Utils.formatar(sturges.AA) },
+          { rotulo: 'Nº de Classes (k)', valor: sturges.k, formula: 'k = 1 + 3,322·log10(n)' },
+          { rotulo: 'Amplitude de Classe (h)', valor: Utils.formatar(sturges.h), formula: 'h = AA / k' },
+          { rotulo: 'Q1 | Q2 | Q3', valor: `${Utils.formatar(brutos.quartis.Q1, 3)} | ${Utils.formatar(brutos.quartis.Q2, 3)} | ${Utils.formatar(brutos.quartis.Q3, 3)}` },
+          { rotulo: 'Outliers', valor: brutos.analiseOutliers.outliers.length ? brutos.analiseOutliers.outliers.map((v) => Utils.formatar(v, 3)).join(', ') : 'Nenhum' }
+        ];
+        this.renderizarInfoGrid(itens);
+      },
+      renderizarInfoAgrupados(n, k, h, AA, minimo, maximo) {
+        const itens = [
+          { rotulo: 'n (Σfi)', valor: n },
+          { rotulo: 'Mínimo (classes)', valor: Utils.formatar(minimo) },
+          { rotulo: 'Máximo (classes)', valor: Utils.formatar(maximo) },
+          { rotulo: 'Amplitude Amostral (AA)', valor: Utils.formatar(AA) },
+          { rotulo: 'Nº de Classes', valor: k },
+          { rotulo: 'Amplitude Média (h)', valor: Utils.formatar(h) }
+        ];
+        this.renderizarInfoGrid(itens);
+      },
+      renderizarInfoGrid(itens) {
+        const grid = document.getElementById('info-grid');
+        grid.innerHTML = itens.map((item) => `
+          <div class="info-item">
+            <div class="rotulo">${item.rotulo}</div>
+            <div class="valor mono">${item.valor}</div>
+            ${item.formula ? `<div style="font-size:0.65rem;color:var(--cor-texto-dim);margin-top:0.2rem;">${item.formula}</div>` : ''}
+          </div>
+        `).join('');
+      },
+      renderizarRol(rol) {
+        const secao = document.getElementById('secao-rol');
+        secao.style.display = 'block';
+        document.getElementById('rol-dados').textContent = rol.join(' → ');
+      },
+      renderizarTabela(tabela, indiceModa, indiceMediana) {
+        const corpo = document.getElementById('corpo-tabela');
+        const rodape = document.getElementById('rodape-tabela');
+        corpo.innerHTML = tabela.map((linha, idx) => {
+          const classe = idx === indiceModa ? 'linha-moda' : (idx === indiceMediana ? 'linha-mediana' : '');
+          return `
+            <tr class="${classe}">
+              <td>[${Utils.formatar(linha.li, 2)} ⊢ ${Utils.formatar(linha.ls, 2)})${idx === indiceModa ? ' ★' : ''}${idx === indiceMediana ? ' ◆' : ''}</td>
+              <td>${linha.fi}</td>
+              <td>${linha.Fi}</td>
+              <td>${Utils.formatar(linha.fr, 2)}%</td>
+              <td>${Utils.formatar(linha.xi, 4)}</td>
+              <td>${Utils.formatar(linha.fixi, 4)}</td>
+              <td>${Utils.formatar(linha.fixi2, 4)}</td>
+            </tr>
+          `;
+        }).join('');
+        const totalFi = tabela.reduce((acc, l) => acc + l.fi, 0);
+        const totalFixi = tabela.reduce((acc, l) => acc + l.fixi, 0);
+        const totalFixi2 = tabela.reduce((acc, l) => acc + l.fixi2, 0);
+        rodape.innerHTML = `
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td>${totalFi}</td>
+            <td>—</td>
+            <td>100%</td>
+            <td>—</td>
+            <td>${Utils.formatar(totalFixi, 4)}</td>
+            <td>${Utils.formatar(totalFixi2, 4)}</td>
+          </tr>
+        `;
+      },
+      renderizarCardsBrutos(brutos) {
+        const ehAmostra = brutos.tipoDispersao === 'amostra';
+        const formulaVar = ehAmostra ? 'S² = Σ(Xi−X̄)² / (n−1)' : 'S² = Σ(Xi−X̄)² / n';
+        const rotuloVar = ehAmostra ? 'Variância Amostral' : 'Variância Populacional';
+        const rotuloDp = ehAmostra ? 'Desvio Padrão Amostral' : 'Desvio Padrão Populacional';
+        document.getElementById('cards-tendencia').innerHTML = [
+          { icone: 'X̄', rotulo: 'Média', valor: Utils.formatar(brutos.media, 4), formula: 'X̄ = ΣXi / n', tooltip: 'Média para dados não agrupados.' },
+          { icone: 'Md', rotulo: 'Mediana', valor: Utils.formatar(brutos.mediana, 4), formula: 'Valor central ordenado', tooltip: 'Mediana de dados não agrupados.' },
+          { icone: 'Mo', rotulo: 'Moda', valor: brutos.moda.length ? brutos.moda.map((m) => Utils.formatar(m, 3)).join(', ') : 'Amodal', formula: 'Valor(es) mais frequente(s)', tooltip: 'Moda para dados não agrupados.' }
+        ].map((card) => this.criarCard(card)).join('');
+        document.getElementById('cards-dispersao').innerHTML = [
+          { icone: 'S²', rotulo: rotuloVar, valor: Utils.formatar(brutos.variancia, 4), formula: formulaVar, tooltip: 'Dispersão calculada diretamente no array bruto (sem classes).', estilo: 'ciano card-destaque' },
+          { icone: 'S', rotulo: rotuloDp, valor: Utils.formatar(brutos.desvioPadrao, 4), formula: 'S = √S²', tooltip: 'Desvio padrão calculado diretamente no array bruto.', estilo: 'ciano card-destaque' },
+          { icone: 'CV', rotulo: 'Coeficiente de Variação', valor: `${Utils.formatar(brutos.cv, 2)}%`, formula: 'CV = (S / X̄) × 100', tooltip: 'Medida relativa de dispersão.', estilo: 'ciano card-destaque' }
+        ].map((card) => this.criarCard(card)).join('');
+      },
+      renderizarCardsAgrupados(agrupado) {
+        document.getElementById('cards-tendencia').innerHTML = [
+          { icone: 'X̄', rotulo: 'Média Ponderada', valor: Utils.formatar(agrupado.media, 4), formula: 'X̄ = Σ(Xi·fi) / n', tooltip: 'Média para dados agrupados.' },
+          { icone: 'Mo', rotulo: 'Moda (Czuber)', valor: Utils.formatar(agrupado.moda, 4), formula: 'Mo = lmo + [(fmo−fant)/(2fmo−fant−fpos)]·h', tooltip: 'Moda por interpolação na classe modal.' },
+          { icone: 'Md', rotulo: 'Mediana', valor: Utils.formatar(agrupado.mediana, 4), formula: 'Md = lmd + [(n/2−Fant)/fmd]·h', tooltip: 'Mediana para dados agrupados.' }
+        ].map((card) => this.criarCard(card)).join('');
+        document.getElementById('cards-dispersao').innerHTML = [
+          { icone: 'S²', rotulo: 'Variância', valor: Utils.formatar(agrupado.variancia, 4), formula: 'S² = Σ(fi·Xi²)/n − X̄²', tooltip: 'Variância para dados agrupados.', estilo: 'ciano card-destaque' },
+          { icone: 'S', rotulo: 'Desvio Padrão', valor: Utils.formatar(agrupado.desvioPadrao, 4), formula: 'S = √S²', tooltip: 'Desvio padrão para dados agrupados.', estilo: 'ciano card-destaque' },
+          { icone: 'CV', rotulo: 'Coeficiente de Variação', valor: `${Utils.formatar(agrupado.cv, 2)}%`, formula: 'CV = (S / X̄) × 100', tooltip: 'Dispersão relativa para dados agrupados.', estilo: 'ciano card-destaque' }
+        ].map((card) => this.criarCard(card)).join('');
+      },
+      criarCard(card) {
+        return `
+          <div class="card ${card.estilo || ''}">
+            <div class="tooltip-wrapper">
+              <span class="tooltip-icone">?</span>
+              <div class="tooltip-box">${card.tooltip}</div>
+            </div>
+            <div class="card-icone mono" style="color:var(--cor-destaque${(card.estilo || '').includes('ciano') ? '-2' : ''});">${card.icone}</div>
+            <div class="card-rotulo">${card.rotulo}</div>
+            <div class="card-valor ${card.cor || ''}">${card.valor}</div>
+            <div class="card-formula">${card.formula}</div>
+          </div>
+        `;
+      },
+      exibirResultados() {
+        document.getElementById('secao-resultados').style.display = 'block';
+        document.getElementById('secao-resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      iniciar() {
+        this.adicionarLinhaAgrupada();
+      }
+    };
+
+    UI.iniciar();
+  </script>
+
+</body>
+
+</html>
