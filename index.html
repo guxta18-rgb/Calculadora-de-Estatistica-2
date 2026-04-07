@@ -817,17 +817,7 @@
           <textarea id="entrada-brutos" placeholder="Ex: 12, 15, 18, 20, 22, 25, 27, 30, 33, 35"></textarea>
           <p class="hint">Insira os dados brutos para calcular tendência central, dispersão, quartis e outliers.</p>
         </div>
-        <div class="hint" style="margin-top:0.6rem;">
-          Base da dispersão:
-          <label style="margin-left:0.55rem;">
-            <input type="radio" name="tipo-dispersao" value="amostra" checked>
-            Amostra (n-1)
-          </label>
-          <label style="margin-left:0.85rem;">
-            <input type="radio" name="tipo-dispersao" value="populacao">
-            População (n)
-          </label>
-        </div>
+        
         <div class="acoes">
           <button class="btn btn-primario" onclick="UI.calcularBrutos()">▶ Calcular Dados Brutos</button>
           <button class="btn btn-exemplo" onclick="UI.sugerirClassesSturges()">⚡ Sugerir Classes (Sturges)</button>
