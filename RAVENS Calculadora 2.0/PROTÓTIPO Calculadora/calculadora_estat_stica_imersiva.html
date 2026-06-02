@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Estatística Aplicada - Sistema Especialista</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Header Principal -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 11h.01M12 7h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight">Estatística Aplicada</h1>
+                    <p class="text-xs text-slate-400">Sistema Especialista de Probabilidade e Decisão</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Parte II - Pronto para Uso</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal com Sidebar de Navegação -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col lg:flex-row gap-8">
+        
+        <!-- Sidebar de Navegação / Abas -->
+        <aside class="lg:w-64 flex-shrink-0">
+            <nav class="space-y-1.5" id="nav-tabs">
+                <button onclick="switchTab('discretas')" id="tab-btn-discretas" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>
+                    </svg>
+                    <span>1. Distribuições Discretas</span>
+                </button>
+                <button onclick="switchTab('normal')" id="tab-btn-normal" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>2. Distribuição Normal</span>
+                </button>
+                <button onclick="switchTab('correlacao')" id="tab-btn-correlacao" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span>3. Correlação & Regressão</span>
+                </button>
+                <button onclick="switchTab('hipoteses')" id="tab-btn-hipoteses" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>4. Teste de Hipóteses</span>
+                </button>
+            </nav>
+            <div class="mt-8 p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                <span class="font-semibold text-slate-200 block mb-1">Dica Pedagógica</span>
+                Navegue pelas abas para explorar as resoluções numéricas e as equações detalhadas equivalentes a cada slide de aula.
+            </div>
+        </aside>
+
+        <!-- Área de Trabalho / Conteúdo da Aba Ativa -->
+        <main class="flex-1 min-w-0">
+            
+            <!-- ABA 1: DISTRIBUIÇÕES DISCRETAS (BINOMIAL & POISSON) -->
+            <section id="pane-discretas" class="space-y-6">
+                <!-- Seletor Interno Binomial vs Poisson -->
+                <div class="bg-slate-950 p-1.5 rounded-xl border border-slate-800 inline-flex">
+                    <button onclick="toggleDiscreteSubtype('binomial')" id="sub-discrete-binomial" class="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white">
+                        Distribuição Binomial
+                    </button>
+                    <button onclick="toggleDiscreteSubtype('poisson')" id="sub-discrete-poisson" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+                        Distribuição de Poisson
+                    </button>
+                </div>
+
+                <!-- Painel da Binomial -->
+                <div id="discrete-binomial-panel" class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span>Parâmetros de Entrada</span>
+                            <span class="text-xs text-slate-400 font-mono">Binomial</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Tentativas ($n$)</label>
+                                <input type="number" id="binom-n" value="5" min="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Número de repetições do experimento.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Sucessos Desejados ($k$)</label>
+                                <input type="number" id="binom-k" value="3" min="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Número exato de eventos desejados.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Probabilidade de Sucesso ($p$)</label>
+                                <input type="number" id="binom-p" value="0.5" step="0.05" min="0" max="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Chance de sucesso por tentativa (0 a 1).</p>
+                            </div>
+                        </div>
+                        <button onclick="calculateBinomial()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/10 mt-2">
+                            Calcular Probabilidades
+                        </button>
+                    </div>
+
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Resultados Rápidos -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">Exato: $P(X = k)$</span>
+                                <span class="text-3xl font-extrabold text-indigo-400 block tracking-tight my-1" id="binom-res-exact">31.25%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Exatamente $k$ sucessos</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-emerald-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">No máximo: $P(X \le k)$</span>
+                                <span class="text-3xl font-extrabold text-emerald-400 block tracking-tight my-1" id="binom-res-max">81.25%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Soma de 0 até $k$</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-amber-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">Pelo menos: $P(X \ge k)$</span>
+                                <span class="text-3xl font-extrabold text-amber-400 block tracking-tight my-1" id="binom-res-min">50.00%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Soma de $k$ até $n$</span>
+                            </div>
+                        </div>
+
+                        <!-- Passo a Passo Educacional -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 flex items-center justify-between">
+                                <span>Memorial de Cálculo Detalhado</span>
+                                <span class="text-xs text-indigo-400 lowercase font-normal italic">idêntico à lousa da Aula VII</span>
+                            </h4>
+                            <div class="space-y-4 text-sm leading-relaxed" id="binom-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel da Poisson -->
+                <div id="discrete-poisson-panel" class="grid grid-cols-1 xl:grid-cols-3 gap-6 hidden">
+                    <div class="xl:col-span-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span>Parâmetros de Entrada</span>
+                            <span class="text-xs text-slate-400 font-mono">Poisson</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Média de Ocorrências ($\lambda$)</label>
+                                <input type="number" id="poisson-lambda" value="2" min="0.01" step="0.1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Número médio de eventos no período.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ocorrências Desejadas ($k$)</label>
+                                <input type="number" id="poisson-k" value="3" min="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Número de sucessos para estimativa.</p>
+                            </div>
+                        </div>
+                        <button onclick="calculatePoisson()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/10 mt-2">
+                            Calcular Poisson
+                        </button>
+                    </div>
+
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Resultados Poisson -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">Exato: $P(X = k)$</span>
+                                <span class="text-3xl font-extrabold text-indigo-400 block tracking-tight my-1" id="poisson-res-exact">18.04%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Exatamente $k$ ocorridos</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-emerald-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">No máximo: $P(X \le k)$</span>
+                                <span class="text-3xl font-extrabold text-emerald-400 block tracking-tight my-1" id="poisson-res-max">85.71%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Soma acumulada de 0 até $k$</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-amber-600/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                <span class="text-xs text-slate-400 font-medium block mb-1">Pelo menos: $P(X \ge k)$</span>
+                                <span class="text-3xl font-extrabold text-amber-400 block tracking-tight my-1" id="poisson-res-min">32.33%</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Via Complementar $1 - P(X < k)$</span>
+                            </div>
+                        </div>
+
+                        <!-- Passo a Passo Poisson -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 flex items-center justify-between">
+                                <span>Memorial de Cálculo Detalhado</span>
+                                <span class="text-xs text-indigo-400 lowercase font-normal italic">Vídeo e visualizações - Aula VII</span>
+                            </h4>
+                            <div class="space-y-4 text-sm leading-relaxed" id="poisson-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 2: DISTRIBUIÇÃO NORMAL -->
+            <section id="pane-normal" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span>Parâmetros de Entrada</span>
+                            <span class="text-xs text-slate-400 font-mono">Normal Padrão</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Média ($\overline{x}$)</label>
+                                <input type="number" id="norm-mean" value="4.0" step="0.1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Exemplo de prova da Aula VIII: 4,0</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Desvio Padrão ($s$)</label>
+                                <input type="number" id="norm-sd" value="2.0" step="0.1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                <p class="text-[10px] text-slate-500 mt-1">Exemplo de prova da Aula VIII: 2,0</p>
+                            </div>
+                            <div class="border-t border-slate-800 pt-4">
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Intervalo de Probabilidade</label>
+                                <select id="norm-type" onchange="toggleNormalInputVisibility()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium mb-3">
+                                    <option value="greater">Maior que X1: P(X > X1)</option>
+                                    <option value="less">Menor que X1: P(X < X1)</option>
+                                    <option value="between">Entre dois valores: P(X1 < X < X2)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label id="lbl-norm-x1" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Valor Limite (X1)</label>
+                                <input type="number" id="norm-x1" value="6.0" step="0.1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                            <div id="norm-x2-wrapper" class="hidden">
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Valor Limite Superior (X2)</label>
+                                <input type="number" id="norm-x2" value="10.0" step="0.1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                        </div>
+                        <button onclick="calculateNormal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/10 mt-2">
+                            Calcular Área (Z)
+                        </button>
+                    </div>
+
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Painel de Resultados do Z-score -->
+                        <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="space-y-1 text-center md:text-left">
+                                <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Probabilidade Calculada</span>
+                                <h4 class="text-4xl font-black text-indigo-400 tracking-tight" id="norm-result-percentage">15.87%</h4>
+                                <span class="text-xs text-slate-500 block" id="norm-result-expression">P(X > 6.0) correspondente a P(Z > 1.00)</span>
+                            </div>
+                            <!-- Mini Gráfico de Gauss Dinâmico em SVG -->
+                            <div class="w-64 h-32 bg-slate-900/50 rounded-xl border border-slate-800 p-2 flex items-center justify-center">
+                                <svg id="gauss-svg" viewBox="0 0 200 100" class="w-full h-full overflow-visible">
+                                    <!-- A curva de Gauss será renderizada e preenchida aqui por JS -->
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Passo a Passo Z -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 flex items-center justify-between">
+                                <span>Solução Matemática via Tabela de Gauss</span>
+                                <span class="text-xs text-indigo-400 lowercase font-normal italic">Tabela Normal Zero-a-Z</span>
+                            </h4>
+                            <div class="space-y-4 text-sm leading-relaxed" id="normal-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 3: CORRELAÇÃO & REGRESSÃO -->
+            <section id="pane-correlacao" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Tabela de Dados Entrada -->
+                    <div class="xl:col-span-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl flex flex-col h-[650px]">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-base font-bold text-white">Conjunto de Dados (X, Y)</h3>
+                            <div class="flex space-x-1.5">
+                                <button onclick="loadSampleRegressionData()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-md font-semibold transition-all">
+                                    Amostra Slide
+                                </button>
+                                <button onclick="clearRegressionPoints()" class="text-[10px] bg-red-900/40 hover:bg-red-800/60 text-red-300 px-2.5 py-1 rounded-md font-semibold transition-all">
+                                    Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inputs Rápidos -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Novo X (Indep.)</label>
+                                <input type="number" id="reg-new-x" value="5" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Novo Y (Dep.)</label>
+                                <input type="number" id="reg-new-y" value="5" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                        </div>
+                        <button onclick="addRegressionPointFromInputs()" class="w-full bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/20 py-2 rounded-xl text-xs font-bold transition-all">
+                            + Adicionar Par Ordenado
+                        </button>
+
+                        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-900/40 divide-y divide-slate-800/60" id="reg-points-list">
+                            <!-- Inserção dos dados pareados aqui -->
+                        </div>
+                    </div>
+
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Dashboard de Resultados -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                                <span class="text-xs text-slate-400 font-medium">Coeficiente de Pearson ($r$)</span>
+                                <div class="my-2">
+                                    <span class="text-3xl font-extrabold text-indigo-400 block tracking-tight" id="reg-val-r">0.911</span>
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 inline-block mt-1" id="reg-classification-badge">Altamente Significativo</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-medium">Representa o nível de acoplamento linear.</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                                <span class="text-xs text-slate-400 font-medium">Linha de Regressão</span>
+                                <div class="my-2">
+                                    <span class="text-2xl font-black text-emerald-400 block code-font" id="reg-equation">y = 0.86x + 0.89</span>
+                                    <span class="text-[10px] text-slate-400 block mt-1" id="reg-coefs">a = 0.86 | b = 0.89</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-medium">Modelo ótimo minimizador de resíduos.</span>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                                <span class="text-xs text-slate-400 font-medium">Amostras Ativas ($n$)</span>
+                                <span class="text-4xl font-black text-slate-100 block my-2" id="reg-val-n">10</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Pares ordenados atualmente computados.</span>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Dispersão e Linha -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3">Visualização Gráfica Dinâmica</h4>
+                            <div class="w-full h-64 bg-slate-900 rounded-xl flex items-center justify-center p-4">
+                                <svg id="scatter-plot-svg" viewBox="0 0 400 240" class="w-full h-full overflow-visible">
+                                    <!-- Pontos e linhas gerados dinamicamente por Javascript -->
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Preditor Dinâmico / Interpolação e Extrapolação -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3">Preditor Linear & Classificador</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Forneça o valor de X desejado para previsão</label>
+                                        <input type="number" id="predict-input-x" value="4.0" step="0.5" oninput="runPredictor()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium text-sm">
+                                    </div>
+                                </div>
+                                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                                    <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Predição Resultante</span>
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-3xl font-extrabold text-emerald-400" id="predict-out-y">4.33</span>
+                                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest px-2.5 py-0.5 rounded bg-amber-950/40 border border-amber-500/20" id="predict-class">Extrapolação</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400" id="predict-explanation">O valor de X está fora do range amostral mínimo e máximo (Realizando Extrapolação).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 4: TESTE DE HIPÓTESES -->
+            <section id="pane-hipoteses" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Configurações do Cenário -->
+                    <div class="xl:col-span-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <h3 class="text-base font-bold text-white">Configuração do Caso</h3>
+                            <span class="text-xs text-indigo-400 font-mono">Aula IX</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Selecione um Cenário Clássico</label>
+                                <select id="hypothesis-scenario" onchange="loadScenarioTemplate()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 font-medium">
+                                    <option value="diet">Plano de Dieta (30 dias) - Exemplo de Slide</option>
+                                    <option value="sensor">Sensor de Alarme de Fumaça - Conceitual</option>
+                                    <option value="court">Inocência no Tribunal (Julgamento) - Conceitual</option>
+                                    <option value="custom">Caso Customizado (Insira seus dados)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Hipótese Nula ($H_0$)</label>
+                                <input type="text" id="hyp-h0" value="A perda de peso média provocada é igual a 5 kg." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Hipótese Alternativa ($H_a$)</label>
+                                <input type="text" id="hyp-ha" value="A perda de peso média provocada é diferente de 5 kg." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 font-medium">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Nível Sig. ($\alpha$)</label>
+                                    <input type="number" id="hyp-alpha" value="0.05" min="0.001" max="0.5" step="0.01" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">P-valor calculado</label>
+                                    <input type="number" id="hyp-pvalue" value="0.03" min="0" max="1" step="0.01" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="runHypothesisTest()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/10 mt-2">
+                            Rodar Teste Científico
+                        </button>
+                    </div>
+
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Relatório de Decisão do Teste -->
+                        <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Resultado da Tomada de Decisão</span>
+                            <div class="flex items-center space-x-4">
+                                <div id="decision-icon-container" class="bg-red-900/30 text-red-400 p-3 rounded-2xl border border-red-500/20">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="space-y-1">
+                                    <h4 class="text-2xl font-black text-white" id="hyp-decision-title">Rejeitar a Hipótese Nula ($H_0$)</h4>
+                                    <p class="text-xs text-slate-400" id="hyp-decision-reason">P-valor (0.03) é menor ou igual a &alpha; (0.05). Forte evidência contra o status quo.</p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-sm text-slate-300 leading-relaxed" id="hyp-conclusion-text">
+                                Conclusão Científica: A afirmação de que "A perda de peso média provocada é igual a 5 kg." deve ser rejeitada, adotando-se o efeito observado como estatisticamente significativo.
+                            </div>
+                        </div>
+
+                        <!-- Matriz de Riscos de Erros Traduzido Dinamicamente -->
+                        <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 flex items-center justify-between">
+                                <span>Matriz Curada de Riscos & Erros Contextualizados</span>
+                                <span class="text-xs text-amber-500 italic lowercase font-normal">especialidade pedagógica da Aula IX</span>
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="p-5 bg-red-950/30 border border-red-500/10 rounded-2xl space-y-2">
+                                    <span class="text-xs font-bold text-red-400 uppercase tracking-widest block">Erro do Tipo I (&alpha;) - Falso Positivo</span>
+                                    <p class="text-[11px] text-slate-400 italic">Rejeitar $H_0$ quando $H_0$ é verdadeira.</p>
+                                    <p class="text-xs text-slate-200 leading-relaxed pt-2 border-t border-slate-800/40" id="text-error-type-1">
+                                        <!-- Gerado dinamicamente -->
+                                    </p>
+                                </div>
+                                <div class="p-5 bg-amber-950/30 border border-amber-500/10 rounded-2xl space-y-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Erro do Tipo II (&beta;) - Falso Negativo</span>
+                                    <p class="text-[11px] text-slate-400 italic">Manter $H_0$ quando $H_0$ é falsa.</p>
+                                    <p class="text-xs text-slate-200 leading-relaxed pt-2 border-t border-slate-800/40" id="text-error-type-2">
+                                        <!-- Gerado dinamicamente -->
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-slate-800 py-6 mt-12 bg-slate-950 text-xs text-slate-500 text-center">
+        <p>© 2026 Estatística Aplicada & TI - Sistema Desenvolvido Especialmente para Ensino Tecnológico</p>
+    </footer>
+
+    <!-- LÓGICA E CÁLCULO ESTATÍSTICO -->
+    <script>
+        // --- FUNÇÕES DE NAVEGAÇÃO E GRÁFICOS ---
+        function switchTab(tabId) {
+            // Esconde todas as panes
+            document.getElementById('pane-discretas').classList.add('hidden');
+            document.getElementById('pane-normal').classList.add('hidden');
+            document.getElementById('pane-correlacao').classList.add('hidden');
+            document.getElementById('pane-hipoteses').classList.add('hidden');
+
+            // Exibe a pane desejada
+            document.getElementById('pane-' + tabId).classList.remove('hidden');
+
+            // Reseta estilo dos botões das abas
+            const buttons = document.querySelectorAll('#nav-tabs button');
+            buttons.forEach(btn => {
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50";
+            });
+
+            // Aplica estilo ativo ao botão selecionado
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            if(activeBtn) {
+                activeBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/10";
+            }
+
+            // Ações especiais ao abrir certas abas
+            if(tabId === 'correlacao') {
+                if(regressionPoints.length === 0) {
+                    loadSampleRegressionData();
+                } else {
+                    recalculateRegression();
+                }
+            } else if(tabId === 'normal') {
+                calculateNormal();
+            } else if(tabId === 'discretas') {
+                calculateBinomial();
+                calculatePoisson();
+            } else if(tabId === 'hipoteses') {
+                runHypothesisTest();
+            }
+        }
+
+        function toggleDiscreteSubtype(type) {
+            const binBtn = document.getElementById('sub-discrete-binomial');
+            const poiBtn = document.getElementById('sub-discrete-poisson');
+            const binPanel = document.getElementById('discrete-binomial-panel');
+            const poiPanel = document.getElementById('discrete-poisson-panel');
+
+            if (type === 'binomial') {
+                binBtn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white";
+                poiBtn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200";
+                binPanel.classList.remove('hidden');
+                poiPanel.classList.add('hidden');
+                calculateBinomial();
+            } else {
+                poiBtn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white";
+                binBtn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200";
+                poiPanel.classList.remove('hidden');
+                binPanel.classList.add('hidden');
+                calculatePoisson();
+            }
+        }
+
+        // --- MÓDULO 1: DISTRIBUIÇÕES DISCRETAS ---
+        function factorial(n) {
+            if (n < 0) return 0;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function combinations(n, k) {
+            if (k < 0 || k > n) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        function calculateBinomial() {
+            const n = parseInt(document.getElementById('binom-n').value);
+            const k = parseInt(document.getElementById('binom-k').value);
+            const p = parseFloat(document.getElementById('binom-p').value);
+
+            // Validações
+            if (isNaN(n) || n < 1 || isNaN(k) || k < 0 || isNaN(p) || p < 0 || p > 1) {
+                alert("Por favor, preencha todos os parâmetros corretamente.");
+                return;
+            }
+            if (k > n) {
+                alert("O número de sucessos (k) não pode ser maior que o de tentativas (n).");
+                return;
+            }
+
+            // Cálculo Exato
+            const c_n_k = combinations(n, k);
+            const p_k_exact = c_n_k * Math.pow(p, k) * Math.pow(1 - p, n - k);
+
+            // Cálculo No Máximo (x <= k)
+            let p_le_k = 0;
+            let maxTermsHTML = "";
+            for (let i = 0; i <= k; i++) {
+                const term = combinations(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+                p_le_k += term;
+                maxTermsHTML += `P(X=${i}) = ${combinations(n, i)} &times; ${p}^{${i}} &times; ${1-p}^{${n-i}} = ${(term*100).toFixed(4)}%<br>`;
+            }
+
+            // Cálculo Pelo Menos (x >= k)
+            let p_ge_k = 0;
+            for (let i = k; i <= n; i++) {
+                p_ge_k += combinations(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+            }
+
+            // Atualiza UI
+            document.getElementById('binom-res-exact').textContent = (p_k_exact * 100).toFixed(2) + "%";
+            document.getElementById('binom-res-max').textContent = (p_le_k * 100).toFixed(2) + "%";
+            document.getElementById('binom-res-min').textContent = (p_ge_k * 100).toFixed(2) + "%";
+
+            // Monta Memorial de Cálculo
+            const stepsDiv = document.getElementById('binom-steps');
+            stepsDiv.innerHTML = `
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Fórmula Geral da Binomial</p>
+                    <p class="code-font text-xs text-indigo-300">P(X = k) = &binom;{n}{k} &times; p^k &times; (1-p)^{n-k}</p>
+                    <p class="text-xs text-slate-400">Inserindo os valores fornecidos: <span class="font-bold text-slate-200">n = ${n}, k = ${k}, p = ${p}</span></p>
+                </div>
+                
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Cálculo do Coeficiente Binomial</p>
+                    <p class="code-font text-xs text-indigo-300">&binom;{${n}}{${k}} = ${n}! / (${k}! &times; (${n} - ${k})!) = ${factorial(n)} / (${factorial(k)} &times; ${factorial(n-k)}) = <span class="text-white font-bold">${c_n_k}</span></p>
+                </div>
+
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Aplicação dos termos de Sucesso e Fracasso</p>
+                    <p class="code-font text-xs">P(X = ${k}) = ${c_n_k} &times; ${p}^{${k}} &times; ${(1 - p).toFixed(2)}^{${n - k}}</p>
+                    <p class="code-font text-xs">P(X = ${k}) = ${c_n_k} &times; ${Math.pow(p, k).toFixed(5)} &times; ${Math.pow(1 - p, n - k).toFixed(5)}</p>
+                    <p class="code-font text-sm text-emerald-400 font-bold">P(X = ${k}) = ${p_k_exact.toFixed(6)} (${(p_k_exact*100).toFixed(4)}% de chance)</p>
+                </div>
+
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 4: Acumuladas</p>
+                    <div class="space-y-1.5 text-xs text-slate-300 code-font">
+                        <p class="text-emerald-400 font-bold">No máximo P(X &le; ${k}) = ${(p_le_k*100).toFixed(4)}%</p>
+                        <div class="pl-4 border-l border-slate-800 text-[11px] text-slate-400 leading-relaxed">${maxTermsHTML}</div>
+                        <p class="text-amber-400 font-bold">Pelo menos P(X &ge; ${k}) = ${(p_ge_k*100).toFixed(4)}%</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculatePoisson() {
+            const lambda = parseFloat(document.getElementById('poisson-lambda').value);
+            const k = parseInt(document.getElementById('poisson-k').value);
+
+            if (isNaN(lambda) || lambda <= 0 || isNaN(k) || k < 0) {
+                alert("Por favor, preencha todos os parâmetros corretamente.");
+                return;
+            }
+
+            // Probabilidade exata P(X=k)
+            const exact_p = (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+
+            // Probabilidade acumulada "no máximo" P(X <= k)
+            let p_le_k = 0;
+            let maxTermsHTML = "";
+            for (let i = 0; i <= k; i++) {
+                const term = (Math.pow(lambda, i) * Math.exp(-lambda)) / factorial(i);
+                p_le_k += term;
+                maxTermsHTML += `P(X=${i}) = (e^{-${lambda}} &times; ${lambda}^{${i}}) / ${i}! = ${(term*100).toFixed(4)}%<br>`;
+            }
+
+            // Pelo menos P(X >= k) - usando complementar se preferido
+            // Para ser idêntico ao Slide 32: P(X >= 3) = 1 - [P(X=0) + P(X=1) + P(X=2)]
+            let p_less_k = 0;
+            let compTermsHTML = "";
+            for (let i = 0; i < k; i++) {
+                const term = (Math.pow(lambda, i) * Math.exp(-lambda)) / factorial(i);
+                p_less_k += term;
+                compTermsHTML += `P(X=${i}) = ${(term*100).toFixed(4)}%<br>`;
+            }
+            const p_ge_k = 1 - p_less_k;
+
+            // Atualiza UI
+            document.getElementById('poisson-res-exact').textContent = (exact_p * 100).toFixed(2) + "%";
+            document.getElementById('poisson-res-max').textContent = (p_le_k * 100).toFixed(2) + "%";
+            document.getElementById('poisson-res-min').textContent = (p_ge_k * 100).toFixed(2) + "%";
+
+            // Monta Memorial de Cálculo Poisson
+            const stepsDiv = document.getElementById('poisson-steps');
+            stepsDiv.innerHTML = `
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Fórmula Geral de Poisson</p>
+                    <p class="code-font text-xs text-indigo-300">P(X = k) = (e^{-&lambda;} &times; &lambda;^k) / k!</p>
+                    <p class="text-xs text-slate-400">Valores definidos: Média <span class="font-bold text-slate-200">&lambda; = ${lambda}</span>, sucessos de interesse <span class="font-bold text-slate-200">k = ${k}</span></p>
+                    <p class="text-[11px] text-slate-500">A constante e &approx; 2.71828 (e^{-${lambda}} &approx; ${Math.exp(-lambda).toFixed(6)})</p>
+                </div>
+
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Cálculo da Probabilidade Exata P(X = ${k})</p>
+                    <p class="code-font text-xs">P(X = ${k}) = (e^{-${lambda}} &times; ${lambda}^{${k}}) / ${k}!</p>
+                    <p class="code-font text-xs">P(X = ${k}) = (${Math.exp(-lambda).toFixed(6)} &times; ${Math.pow(lambda, k)}) / ${factorial(k)}</p>
+                    <p class="code-font text-xs">P(X = ${k}) = ${ (Math.exp(-lambda) * Math.pow(lambda, k)).toFixed(6) } / ${factorial(k)}</p>
+                    <p class="code-font text-sm text-emerald-400 font-bold">P(X = ${k}) = ${exact_p.toFixed(6)} (${(exact_p*100).toFixed(4)}%)</p>
+                </div>
+
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Regra de Decisão Acumulativa No Máximo P(X &le; ${k})</p>
+                    <p class="text-xs text-slate-300">Somando todos os termos de zero até ${k}:</p>
+                    <div class="pl-4 border-l border-slate-800 text-[11px] text-slate-400 code-font leading-relaxed">${maxTermsHTML}</div>
+                    <p class="code-font text-sm text-emerald-400 font-bold mt-2">Soma Final P(X &le; ${k}) = ${(p_le_k*100).toFixed(4)}%</p>
+                </div>
+
+                <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 4: Abordagem Complementar Pelo Menos P(X &ge; ${k})</p>
+                    <p class="text-xs text-slate-300">Como &Sigma; P(X) = 1, calculamos o complementar:</p>
+                    <p class="code-font text-xs text-amber-300 font-semibold">P(X &ge; ${k}) = 1 - P(X < ${k}) = 1 - [ ${Array.from({length: k}, (_, i) => `P(X=${i})`).join(' + ')} ]</p>
+                    <div class="pl-4 border-l border-slate-800 text-[11px] text-slate-400 code-font leading-relaxed">${compTermsHTML}</div>
+                    <p class="code-font text-xs">P(X &ge; ${k}) = 1 - ${(p_less_k).toFixed(6)}</p>
+                    <p class="code-font text-sm text-amber-400 font-bold">Resultado Final P(X &ge; ${k}) = ${(p_ge_k * 100).toFixed(4)}%</p>
+                </div>
+            `;
+        }
+
+        // --- MÓDULO 2: DISTRIBUIÇÃO NORMAL ---
+        function toggleNormalInputVisibility() {
+            const type = document.getElementById('norm-type').value;
+            const x2wrapper = document.getElementById('norm-x2-wrapper');
+            const lblX1 = document.getElementById('lbl-norm-x1');
+
+            if (type === 'between') {
+                x2wrapper.classList.remove('hidden');
+                lblX1.textContent = "Valor Limite Inferior (X1)";
+            } else {
+                x2wrapper.classList.add('hidden');
+                lblX1.textContent = "Valor Limite (X1)";
+            }
+            calculateNormal();
+        }
+
+        function stdNormalCDF(z) {
+            // Alta aproximação da função de probabilidade acumulada normal (Fórmula de Abramowitz & Stegun)
+            const sign = z < 0 ? -1 : 1;
+            const x = Math.abs(z);
+            const p = 0.2316419;
+            const b1 = 0.319381530;
+            const b2 = -0.356563782;
+            const b3 = 1.781477937;
+            const b4 = -1.821255978;
+            const b5 = 1.330274429;
+            
+            const t = 1.0 / (1.0 + p * x);
+            const exponent = -0.5 * x * x;
+            const phi = (1.0 / Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
+            const cdfVal = 1.0 - phi * (b1*t + b2*t^2 + b3*t^3 + b4*t^4 + b5*t^5);
+            
+            if (sign < 0) {
+                return 1.0 - cdfVal;
+            }
+            return cdfVal;
+        }
+
+        function getTabelaZValue(z) {
+            // Representa a área entre 0 e z, idêntico à Tabela Z fornecida no Slide 9 da Aula VIII
+            return Math.abs(stdNormalCDF(z) - 0.5);
+        }
+
+        function calculateNormal() {
+            const mean = parseFloat(document.getElementById('norm-mean').value);
+            const sd = parseFloat(document.getElementById('norm-sd').value);
+            const type = document.getElementById('norm-type').value;
+            const x1 = parseFloat(document.getElementById('norm-x1').value);
+            const x2 = parseFloat(document.getElementById('norm-x2').value);
+
+            if (isNaN(mean) || isNaN(sd) || sd <= 0 || isNaN(x1)) {
+                return;
+            }
+
+            let resultProb = 0;
+            let displayExpr = "";
+            let stepsHTML = "";
+
+            // Cálculo dos escores Z
+            const z1 = (x1 - mean) / sd;
+
+            if (type === 'greater') {
+                const areaZ1 = getTabelaZValue(z1);
+                // Se z1 for maior que 0, P(Z > z1) = 0.50 - P(0 < Z < z1)
+                // Se z1 for menor que 0, P(Z > z1) = 0.50 + P(0 < Z < -z1)
+                if (z1 >= 0) {
+                    resultProb = 0.5 - areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização da Variável (Escore Z)</p>
+                            <p class="code-font text-xs">Z = (X - &mu;) / s = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura da Tabela Z</p>
+                            <p class="text-xs text-slate-300">Buscamos o cruzamento de Z = ${z1.toFixed(2)} na tabela Gaussiana de 0 a Z:</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${z1.toFixed(2)}) = <span class="text-white font-bold">${areaZ1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Aplicação da Simetria</p>
+                            <p class="text-xs text-slate-300">Como a metade direita da curva possui 50% de área (0,50), subtraímos a área interna para obter o extremo direito:</p>
+                            <p class="code-font text-xs">P(Z > ${z1.toFixed(2)}) = P(Z > 0) - P(0 < Z < ${z1.toFixed(2)})</p>
+                            <p class="code-font text-xs">P(Z > ${z1.toFixed(2)}) = 0,50 - ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota ser maior que ${x1} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                } else {
+                    resultProb = 0.5 + areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização da Variável (Escore Z)</p>
+                            <p class="code-font text-xs">Z = (X - &mu;) / s = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura da Tabela Z</p>
+                            <p class="text-xs text-slate-300">Graças à simetria, lemos a área positiva equivalente de Z = ${Math.abs(z1).toFixed(2)}:</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = <span class="text-white font-bold">${areaZ1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Aplicação da Simetria</p>
+                            <p class="text-xs text-slate-300">Dado que Z é menor que a média (negativo), a área à direita de Z acumula a metade direita inteira mais o intervalo intermediário:</p>
+                            <p class="code-font text-xs">P(Z > ${z1.toFixed(2)}) = P(Z > 0) + P(0 < Z < ${Math.abs(z1).toFixed(2)})</p>
+                            <p class="code-font text-xs">P(Z > ${z1.toFixed(2)}) = 0,50 + ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota ser maior que ${x1} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(X > ${x1.toFixed(1)}) &rArr; P(Z > ${z1.toFixed(2)})`;
+            } else if (type === 'less') {
+                const areaZ1 = getTabelaZValue(z1);
+                if (z1 >= 0) {
+                    resultProb = 0.5 + areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização da Variável (Escore Z)</p>
+                            <p class="code-font text-xs">Z = (X - &mu;) / s = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura da Tabela Z</p>
+                            <p class="text-xs text-slate-300">Buscamos o cruzamento de Z = ${z1.toFixed(2)} na tabela Gaussiana:</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${z1.toFixed(2)}) = <span class="text-white font-bold">${areaZ1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Aplicação da Simetria</p>
+                            <p class="text-xs text-slate-300">Como Z é positivo (acima da média), a probabilidade acumulada abaixo dele inclui os 50% inferiores mais a faixa entre a média e Z:</p>
+                            <p class="code-font text-xs">P(Z < ${z1.toFixed(2)}) = P(Z < 0) + P(0 < Z < ${z1.toFixed(2)})</p>
+                            <p class="code-font text-xs">P(Z < ${z1.toFixed(2)}) = 0,50 + ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota ser menor que ${x1} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                } else {
+                    resultProb = 0.5 - areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização da Variável (Escore Z)</p>
+                            <p class="code-font text-xs">Z = (X - &mu;) / s = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura da Tabela Z</p>
+                            <p class="text-xs text-slate-300">Buscamos o termo equivalente positivo Z = ${Math.abs(z1).toFixed(2)}:</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = <span class="text-white font-bold">${areaZ1.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Aplicação da Simetria</p>
+                            <p class="text-xs text-slate-300">Como Z é negativo, a região extrema à sua esquerda é a metade inferior deduzida do intervalo intermediário:</p>
+                            <p class="code-font text-xs">P(Z < ${z1.toFixed(2)}) = P(Z < 0) - P(0 < Z < ${Math.abs(z1).toFixed(2)})</p>
+                            <p class="code-font text-xs">P(Z < ${z1.toFixed(2)}) = 0,50 - ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota ser menor que ${x1} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(X < ${x1.toFixed(1)}) &rArr; P(Z < ${z1.toFixed(2)})`;
+            } else {
+                // Entre X1 e X2
+                if (isNaN(x2) || x2 <= x1) {
+                    alert("Para cálculo entre faixas, X2 deve ser maior do que X1.");
+                    return;
+                }
+                const z2 = (x2 - mean) / sd;
+                const areaZ1 = getTabelaZValue(z1);
+                const areaZ2 = getTabelaZValue(z2);
+
+                // Caso os dois estejam do mesmo lado (mesmo sinal de Z) ou opostos
+                if (z1 * z2 >= 0) {
+                    // Ambos positivos ou ambos negativos -> Deduz área
+                    resultProb = Math.abs(areaZ2 - areaZ1);
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização das Variáveis (Z1 e Z2)</p>
+                            <p class="code-font text-xs">Z1 = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                            <p class="code-font text-xs">Z2 = (${x2} - ${mean}) / ${sd} = <span class="text-white font-bold">${z2.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura dos Mapeamentos na Tabela Z</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = ${areaZ1.toFixed(4)}</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z2).toFixed(2)}) = ${areaZ2.toFixed(4)}</p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Subtração das Áreas</p>
+                            <p class="text-xs text-slate-300">Como os dois pontos residem no mesmo quadrante da média, o intervalo de interesse é a dedução mútua:</p>
+                            <p class="code-font text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = P(0 < Z < ${Math.max(Math.abs(z1), Math.abs(z2)).toFixed(2)}) - P(0 < Z < ${Math.min(Math.abs(z1), Math.abs(z2)).toFixed(2)})</p>
+                            <p class="code-font text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = ${Math.max(areaZ1, areaZ2).toFixed(4)} - ${Math.min(areaZ1, areaZ2).toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota residir entre ${x1} e ${x2} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                } else {
+                    // Sinais opostos -> Soma áreas
+                    resultProb = areaZ1 + areaZ2;
+                    stepsHTML = `
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 1: Padronização das Variáveis (Z1 e Z2)</p>
+                            <p class="code-font text-xs">Z1 = (${x1} - ${mean}) / ${sd} = <span class="text-white font-bold">${z1.toFixed(4)}</span></p>
+                            <p class="code-font text-xs">Z2 = (${x2} - ${mean}) / ${sd} = <span class="text-white font-bold">${z2.toFixed(4)}</span></p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 2: Leitura dos Mapeamentos na Tabela Z</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = ${areaZ1.toFixed(4)}</p>
+                            <p class="code-font text-xs text-indigo-300">P(0 < Z < ${Math.abs(z2).toFixed(2)}) = ${areaZ2.toFixed(4)}</p>
+                        </div>
+                        <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Passo 3: Somatório das Áreas</p>
+                            <p class="text-xs text-slate-300">Como Z1 e Z2 estão em lados opostos em relação à média, o intervalo de interesse é a soma das duas frações:</p>
+                            <p class="code-font text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = P(0 < Z < ${Math.abs(z1).toFixed(2)}) + P(0 < Z < ${Math.abs(z2).toFixed(2)})</p>
+                            <p class="code-font text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = ${areaZ1.toFixed(4)} + ${areaZ2.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                            <p class="code-font text-sm text-emerald-400 font-bold">A probabilidade da nota residir entre ${x1} e ${x2} é de ${(resultProb * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(${x1.toFixed(1)} < X < ${x2.toFixed(1)}) &rArr; P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)})`;
+            }
+
+            // Exibir na UI
+            document.getElementById('norm-result-percentage').innerHTML = (resultProb * 100).toFixed(2) + "%";
+            document.getElementById('norm-result-expression').innerHTML = displayExpr;
+            document.getElementById('normal-steps').innerHTML = stepsHTML;
+
+            // Renderiza Curva Gaussiana customizada
+            renderGaussCurve(z1, type === 'between' ? (x2 - mean) / sd : null, type);
+        }
+
+        function renderGaussCurve(zSelected1, zSelected2, type) {
+            const svg = document.getElementById('gauss-svg');
+            svg.innerHTML = ''; // Limpar anterior
+
+            // Desenhar linha de base
+            const baseLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            baseLine.setAttribute("x1", "10");
+            baseLine.setAttribute("y1", "80");
+            baseLine.setAttribute("x2", "190");
+            baseLine.setAttribute("y2", "80");
+            baseLine.setAttribute("stroke", "#475569");
+            baseLine.setAttribute("stroke-width", "1.5");
+            svg.appendChild(baseLine);
+
+            // Geração de pontos da curva de Gauss y = 70 * exp(-x^2 / 2)
+            let pathD = "M 10 80";
+            let points = [];
+            for (let px = 10; px <= 190; px++) {
+                // Mapear pixel para Z no intervalo [-3, 3]
+                const zVal = ((px - 100) / 90) * 3;
+                const py = 80 - 70 * Math.exp(-0.5 * zVal * zVal);
+                pathD += ` L ${px} ${py}`;
+                points.push({x: px, y: py, z: zVal});
+            }
+            pathD += " L 190 80 Z";
+
+            // Sombreamento da Área de Probabilidade
+            let fillPathD = "M";
+            let hasFill = false;
+
+            points.forEach((pt, idx) => {
+                let shouldShade = false;
+                if (type === 'greater') {
+                    shouldShade = pt.z >= zSelected1;
+                } else if (type === 'less') {
+                    shouldShade = pt.z <= zSelected1;
+                } else if (type === 'between') {
+                    shouldShade = pt.z >= Math.min(zSelected1, zSelected2) && pt.z <= Math.max(zSelected1, zSelected2);
+                }
+
+                if (shouldShade) {
+                    if (!hasFill) {
+                        fillPathD += ` ${pt.x} 80 L ${pt.x} ${pt.y}`;
+                        hasFill = true;
+                    } else {
+                        fillPathD += ` L ${pt.x} ${pt.y}`;
+                    }
+                } else {
+                    if (hasFill) {
+                        fillPathD += ` L ${points[idx-1].x} 80 Z`;
+                        // Desenhar path do segmento sombreado
+                        const fillSegment = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        fillSegment.setAttribute("d", fillPathD);
+                        fillSegment.setAttribute("fill", "#6366f1");
+                        fillSegment.setAttribute("fill-opacity", "0.35");
+                        svg.appendChild(fillSegment);
+                        
+                        fillPathD = "M";
+                        hasFill = false;
+                    }
+                }
+            });
+
+            if (hasFill) {
+                fillPathD += ` L 190 80 Z`;
+                const fillSegment = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                fillSegment.setAttribute("d", fillPathD);
+                fillSegment.setAttribute("fill", "#6366f1");
+                fillSegment.setAttribute("fill-opacity", "0.35");
+                svg.appendChild(fillSegment);
+            }
+
+            // Desenhar Linha de Contorno da Gaussiana
+            const curveContour = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            curveContour.setAttribute("d", pathD.replace(" Z", ""));
+            curveContour.setAttribute("fill", "none");
+            curveContour.setAttribute("stroke", "#818cf8");
+            curveContour.setAttribute("stroke-width", "2");
+            svg.appendChild(curveContour);
+
+            // Marcador de média (Z = 0)
+            const meanLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            meanLine.setAttribute("x1", "100");
+            meanLine.setAttribute("y1", "10");
+            meanLine.setAttribute("x2", "100");
+            meanLine.setAttribute("y2", "80");
+            meanLine.setAttribute("stroke", "#475569");
+            meanLine.setAttribute("stroke-dasharray", "2,2");
+            svg.appendChild(meanLine);
+
+            const meanText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            meanText.setAttribute("x", "100");
+            meanText.setAttribute("y", "92");
+            meanText.setAttribute("text-anchor", "middle");
+            meanText.setAttribute("fill", "#94a3b8");
+            meanText.setAttribute("font-size", "7px");
+            meanText.setAttribute("font-weight", "600");
+            meanText.textContent = "Z=0 (Média)";
+            svg.appendChild(meanText);
+
+            // Marcador de Z1
+            const p1x = 100 + (zSelected1 / 3) * 90;
+            if (p1x >= 10 && p1x <= 190) {
+                const z1Line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                z1Line.setAttribute("x1", p1x.toString());
+                z1Line.setAttribute("y1", "15");
+                z1Line.setAttribute("x2", p1x.toString());
+                z1Line.setAttribute("y2", "80");
+                z1Line.setAttribute("stroke", "#f43f5e");
+                z1Line.setAttribute("stroke-width", "1.5");
+                svg.appendChild(z1Line);
+
+                const z1Text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                z1Text.setAttribute("x", p1x.toString());
+                z1Text.setAttribute("y", "92");
+                z1Text.setAttribute("text-anchor", "middle");
+                z1Text.setAttribute("fill", "#f43f5e");
+                z1Text.setAttribute("font-size", "7px");
+                z1Text.setAttribute("font-weight", "bold");
+                z1Text.textContent = `Z1=${zSelected1.toFixed(2)}`;
+                svg.appendChild(z1Text);
+            }
+
+            // Marcador de Z2 se aplicável
+            if (type === 'between' && zSelected2 !== null) {
+                const p2x = 100 + (zSelected2 / 3) * 90;
+                if (p2x >= 10 && p2x <= 190) {
+                    const z2Line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    z2Line.setAttribute("x1", p2x.toString());
+                    z2Line.setAttribute("y1", "15");
+                    z2Line.setAttribute("x2", p2x.toString());
+                    z2Line.setAttribute("y2", "80");
+                    z2Line.setAttribute("stroke", "#fbbf24");
+                    z2Line.setAttribute("stroke-width", "1.5");
+                    svg.appendChild(z2Line);
+
+                    const z2Text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    z2Text.setAttribute("x", p2x.toString());
+                    z2Text.setAttribute("y", "92");
+                    z2Text.setAttribute("text-anchor", "middle");
+                    z2Text.setAttribute("fill", "#fbbf24");
+                    z2Text.setAttribute("font-size", "7px");
+                    z2Text.setAttribute("font-weight", "bold");
+                    z2Text.textContent = `Z2=${zSelected2.toFixed(2)}`;
+                    svg.appendChild(z2Text);
+                }
+            }
+        }
+
+        // --- MÓDULO 3: CORRELAÇÃO LINEAR E REGRESSÃO ---
+        let regressionPoints = [];
+
+        function loadSampleRegressionData() {
+            // Conjunto exato de 10 alunos das disciplinas Computação I (X) e Computação II (Y) (Aulas VI)
+            regressionPoints = [
+                { id: 1, x: 10, y: 10 },
+                { id: 2, x: 9, y: 8 },
+                { id: 3, x: 8, y: 9 },
+                { id: 4, x: 8, y: 6 },
+                { id: 5, x: 7, y: 8 },
+                { id: 6, x: 7, y: 7 },
+                { id: 7, x: 6, y: 5 },
+                { id: 8, x: 5, y: 6 },
+                { id: 9, x: 3, y: 4 },
+                { id: 10, x: 2, y: 2 }
+            ];
+            recalculateRegression();
+        }
+
+        function clearRegressionPoints() {
+            regressionPoints = [];
+            recalculateRegression();
+        }
+
+        function addRegressionPointFromInputs() {
+            const inputX = parseFloat(document.getElementById('reg-new-x').value);
+            const inputY = parseFloat(document.getElementById('reg-new-y').value);
+
+            if (isNaN(inputX) || isNaN(inputY)) {
+                alert("Os pontos inseridos devem ser números válidos.");
+                return;
+            }
+
+            const nextId = regressionPoints.length > 0 ? Math.max(...regressionPoints.map(p => p.id)) + 1 : 1;
+            regressionPoints.push({ id: nextId, x: inputX, y: inputY });
+            recalculateRegression();
+        }
+
+        function deleteRegressionPoint(id) {
+            regressionPoints = regressionPoints.filter(p => p.id !== id);
+            recalculateRegression();
+        }
+
+        function recalculateRegression() {
+            renderRegressionPointsList();
+            
+            const n = regressionPoints.length;
+            document.getElementById('reg-val-n').textContent = n;
+
+            if (n < 2) {
+                // Estado sem pontos suficientes
+                document.getElementById('reg-val-r').textContent = "---";
+                document.getElementById('reg-classification-badge').textContent = "Dados Insuficientes";
+                document.getElementById('reg-classification-badge').className = "text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400 inline-block mt-1";
+                document.getElementById('reg-equation').textContent = "y = ax + b";
+                document.getElementById('reg-coefs').textContent = "Adicione pelo menos 2 pontos";
+                renderScatterPlot(null, null);
+                return;
+            }
+
+            // Cálculos das somatórias das colunas (Aula VI)
+            let sumX = 0;
+            let sumY = 0;
+            let sumXY = 0;
+            let sumX2 = 0;
+            let sumY2 = 0;
+
+            regressionPoints.forEach(p => {
+                sumX += p.x;
+                sumY += p.y;
+                sumXY += p.x * p.y;
+                sumX2 += p.x * p.x;
+                sumY2 += p.y * p.y;
+            });
+
+            // Coeficiente de correlação r de Pearson
+            const numeratorR = (n * sumXY) - (sumX * sumY);
+            const denominatorR = Math.sqrt(
+                ((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY))
+            );
+
+            let r = 0;
+            if (denominatorR !== 0) {
+                r = numeratorR / denominatorR;
+            }
+
+            // Classificação de Correlação
+            let rClass = "";
+            let rColor = "";
+            const absR = Math.abs(r);
+
+            if (absR >= 0.6) {
+                rClass = "Significativa" + (r >= 0 ? " Positiva" : " Negativa");
+                rColor = "bg-emerald-950 text-emerald-400 border border-emerald-500/25";
+            } else if (absR >= 0.3) {
+                rClass = "Fraca" + (r >= 0 ? " Positiva" : " Negativa");
+                rColor = "bg-amber-950 text-amber-400 border border-amber-500/25";
+            } else {
+                rClass = "Inexpressiva";
+                rColor = "bg-rose-950 text-rose-400 border border-rose-500/25";
+            }
+
+            // Atualiza UI de Correlação
+            document.getElementById('reg-val-r').textContent = r.toFixed(3);
+            const badge = document.getElementById('reg-classification-badge');
+            badge.textContent = rClass;
+            badge.className = `text-xs font-semibold px-2 py-0.5 rounded inline-block mt-1 ${rColor}`;
+
+            // Coeficientes Angular (a) e Linear (b) da Regressão
+            const denominatorA = (n * sumX2) - (sumX * sumX);
+            let a = 0;
+            if (denominatorA !== 0) {
+                a = numeratorR / denominatorA; // O numerador do angular "a" é idêntico ao numerador do R
+            }
+
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+            const b = meanY - (a * meanX);
+
+            // Exibir Equações
+            const equationStr = `y = ${a.toFixed(2)}x ${b >= 0 ? '+ ' + b.toFixed(2) : '- ' + Math.abs(b).toFixed(2)}`;
+            document.getElementById('reg-equation').textContent = equationStr;
+            document.getElementById('reg-coefs').textContent = `a = ${a.toFixed(4)} | b = ${b.toFixed(4)}`;
+
+            // Salva coeficientes globais para o preditor
+            window.currentRegression = { a: a, b: b, minX: Math.min(...regressionPoints.map(p => p.x)), maxX: Math.max(...regressionPoints.map(p => p.x)) };
+
+            // Renderiza o gráfico
+            renderScatterPlot(a, b);
+            runPredictor();
+        }
+
+        function renderRegressionPointsList() {
+            const list = document.getElementById('reg-points-list');
+            list.innerHTML = "";
+
+            regressionPoints.forEach(p => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between px-4 py-2 text-xs text-slate-300 hover:bg-slate-800/40 transition-all";
+                item.innerHTML = `
+                    <span class="font-mono">Ponto (X: <strong class="text-white">${p.x}</strong>, Y: <strong class="text-white">${p.y}</strong>)</span>
+                    <button onclick="deleteRegressionPoint(${p.id})" class="text-slate-500 hover:text-red-400 transition-all p-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function renderScatterPlot(a, b) {
+            const svg = document.getElementById('scatter-plot-svg');
+            svg.innerHTML = ''; // Limpa
+
+            if (regressionPoints.length === 0) return;
+
+            // Encontra os limites para eixos
+            const xs = regressionPoints.map(p => p.x);
+            const ys = regressionPoints.map(p => p.y);
+
+            const minX = Math.max(0, Math.min(...xs) - 2);
+            const maxX = Math.max(...xs) + 2;
+            const minY = Math.max(0, Math.min(...ys) - 2);
+            const maxY = Math.max(...ys) + 2;
+
+            // Função para converter coordenada matemática para pixel do SVG (largura: 400, altura: 240, padding: 30)
+            const padding = 30;
+            const plotW = 400 - (padding * 2);
+            const plotH = 240 - (padding * 2);
+
+            function toSvgX(val) {
+                return padding + ((val - minX) / (maxX - minX)) * plotW;
+            }
+
+            function toSvgY(val) {
+                return padding + plotH - ((val - minY) / (maxY - minY)) * plotH;
+            }
+
+            // Desenhar Grade de Fundo
+            for (let i = Math.ceil(minX); i <= Math.floor(maxX); i++) {
+                const gridX = toSvgX(i);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", gridX.toString());
+                line.setAttribute("y1", padding.toString());
+                line.setAttribute("x2", gridX.toString());
+                line.setAttribute("y2", (padding + plotH).toString());
+                line.setAttribute("stroke", "#1e293b");
+                line.setAttribute("stroke-width", "1");
+                svg.appendChild(line);
+
+                // Label X
+                const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                lbl.setAttribute("x", gridX.toString());
+                lbl.setAttribute("y", (padding + plotH + 12).toString());
+                lbl.setAttribute("text-anchor", "middle");
+                lbl.setAttribute("fill", "#64748b");
+                lbl.setAttribute("font-size", "7px");
+                lbl.textContent = i.toString();
+                svg.appendChild(lbl);
+            }
+
+            for (let i = Math.ceil(minY); i <= Math.floor(maxY); i++) {
+                const gridY = toSvgY(i);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", padding.toString());
+                line.setAttribute("y1", gridY.toString());
+                line.setAttribute("x2", (padding + plotW).toString());
+                line.setAttribute("y2", gridY.toString());
+                line.setAttribute("stroke", "#1e293b");
+                line.setAttribute("stroke-width", "1");
+                svg.appendChild(line);
+
+                // Label Y
+                const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                lbl.setAttribute("x", (padding - 8).toString());
+                lbl.setAttribute("y", (gridY + 3).toString());
+                lbl.setAttribute("text-anchor", "end");
+                lbl.setAttribute("fill", "#64748b");
+                lbl.setAttribute("font-size", "7px");
+                lbl.textContent = i.toString();
+                svg.appendChild(lbl);
+            }
+
+            // Desenhar a linha de tendência (Reta Imagem)
+            if (a !== null && b !== null) {
+                const xStart = minX;
+                const yStart = (a * xStart) + b;
+                const xEnd = maxX;
+                const yEnd = (a * xEnd) + b;
+
+                const trendLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                trendLine.setAttribute("x1", toSvgX(xStart).toString());
+                trendLine.setAttribute("y1", toSvgY(yStart).toString());
+                trendLine.setAttribute("x2", toSvgX(xEnd).toString());
+                trendLine.setAttribute("y2", toSvgY(yEnd).toString());
+                trendLine.setAttribute("stroke", "#10b981");
+                trendLine.setAttribute("stroke-width", "2");
+                trendLine.setAttribute("stroke-linecap", "round");
+                svg.appendChild(trendLine);
+            }
+
+            // Desenhar os pontos do gráfico (Dispersão)
+            regressionPoints.forEach(pt => {
+                const cx = toSvgX(pt.x);
+                const cy = toSvgY(pt.y);
+
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", cx.toString());
+                circle.setAttribute("cy", cy.toString());
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", "#6366f1");
+                circle.setAttribute("stroke", "#1e1b4b");
+                circle.setAttribute("stroke-width", "1");
+                svg.appendChild(circle);
+            });
+        }
+
+        function runPredictor() {
+            if(!window.currentRegression) return;
+            const inputXVal = parseFloat(document.getElementById('predict-input-x').value);
+            if (isNaN(inputXVal)) return;
+
+            const { a, b, minX, maxX } = window.currentRegression;
+            const predY = (a * inputXVal) + b;
+
+            document.getElementById('predict-out-y').textContent = predY.toFixed(2);
+
+            const predClassBadge = document.getElementById('predict-class');
+            const predExplanation = document.getElementById('predict-explanation');
+
+            if (inputXVal >= minX && inputXVal <= maxX) {
+                predClassBadge.textContent = "Interpolação";
+                predClassBadge.className = "text-xs font-bold text-emerald-400 uppercase tracking-widest px-2.5 py-0.5 rounded bg-emerald-950/40 border border-emerald-500/20";
+                predExplanation.textContent = `A coordenada de predição X (${inputXVal}) reside dentro do range observado [${minX} a ${maxX}].`;
+            } else {
+                predClassBadge.textContent = "Extrapolação";
+                predClassBadge.className = "text-xs font-bold text-amber-400 uppercase tracking-widest px-2.5 py-0.5 rounded bg-amber-950/40 border border-amber-500/20";
+                predExplanation.textContent = `A coordenada de predição X (${inputXVal}) extrapola os limites amostrais [${minX} a ${maxX}].`;
+            }
+        }
+
+        // --- MÓDULO 4: TESTE DE HIPÓTESES ---
+        const scenarioTemplates = {
+            diet: {
+                h0: "A perda de peso média provocada é igual a 5 kg.",
+                ha: "A perda de peso média provocada é diferente de 5 kg.",
+                alpha: 0.05,
+                pvalue: 0.03,
+                err1: "Concluir cientificamente que a dieta <strong>NÃO</strong> proporciona a perda prometida de 5 kg, quando na verdade ela funciona exatamente como prometido.",
+                err1Prac: "<strong>Impacto Prático:</strong> A nutricionista irá reformular uma dieta saudável que já é eficaz, perdendo tempo e investimentos. Os pacientes perderão a chance de utilizar um plano alimentar que realmente atinge o objetivo esperado.",
+                err2: "Concluir cientificamente que a dieta <strong>SIM</strong> cumpre a meta de 5 kg, quando na verdade o efeito real é inferior ao esperado.",
+                err2Prac: "<strong>Impacto Prático:</strong> Propaganda enganosa contínua. Pacientes seguirão a dieta rigorosamente e não alcançarão os 5 kg de emagrecimento prometidos, gerando frustração profunda e deteriorando a credibilidade profissional a longo prazo."
+            },
+            sensor: {
+                h0: "Não há um incêndio de perigo real ocorrendo no prédio.",
+                ha: "Há um incêndio perigoso ativo nas dependências do prédio.",
+                alpha: 0.05,
+                pvalue: 0.001,
+                err1: "O alarme de incêndio dispara informando risco de vida, mas na verdade não há fogo nenhum (curto-circuito ou excesso de vapor de banho).",
+                err1Prac: "<strong>Impacto Prático:</strong> Pânico desnecessário, evacuação do prédio e deslocamento das viaturas dos bombeiros sem motivo. Uma sequência desses eventos gera a perda de confiabilidade no próprio sistema de segurança.",
+                err2: "Há um incêndio real propagando calor e cinzas no prédio, mas o alarme permanece desligado, indicando segurança completa.",
+                err2Prac: "<strong>Impacto Prático:</strong> Catástrofe grave. As pessoas não evacuarão as dependências a tempo, gerando perdas patrimoniais totais e riscos severos à integridade física."
+            },
+            court: {
+                h0: "O réu em julgamento é completamente inocente das acusações.",
+                ha: "O réu em julgamento é culpado pelo crime cometido.",
+                alpha: 0.05,
+                pvalue: 0.60,
+                err1: "O tribunal decide por condenar o réu, enviando-o à prisão, quando na realidade ele é inocente.",
+                err1Prac: "<strong>Impacto Prático:</strong> Grave injustiça humanitária. Um cidadão inocente é privado de sua liberdade enquanto o criminoso real continua solto e impune perante a lei.",
+                err2: "O réu é formalmente absolvido e liberado pelo juiz, quando na verdade ele é o autor real do delito.",
+                err2Prac: "<strong>Impacto Prático:</strong> Um criminoso é inserido de volta na sociedade livre, potencialmente cometendo novos atos ilícitos e fragilizando o sistema judicial."
+            },
+            custom: {
+                h0: "O status quo ou efeito nulo é verdadeiro.",
+                ha: "Existe uma diferença ou alteração estatisticamente significativa.",
+                alpha: 0.05,
+                pvalue: 0.05,
+                err1: "Rejeitar a alegação nula ($H_0$), aceitando a alternativa, quando o efeito foi mero fruto do acaso.",
+                err1Prac: "<strong>Impacto Prático:</strong> Falso Positivo. Tomada de decisões com base em teorias ou suposições que não se sustentam na realidade.",
+                err2: "Manter a hipótese nula ($H_0$), ignorando o efeito, quando na verdade havia uma causa real que não foi detectada.",
+                err2Prac: "<strong>Impacto Prático:</strong> Falso Negativo. Omissão ou perda de oportunidades para melhorias ou descobertas reais por falta de sensibilidade estatística."
+            }
+        };
+
+        function loadScenarioTemplate() {
+            const sc = document.getElementById('hypothesis-scenario').value;
+            const data = scenarioTemplates[sc];
+
+            document.getElementById('hyp-h0').value = data.h0;
+            document.getElementById('hyp-ha').value = data.ha;
+            document.getElementById('hyp-alpha').value = data.alpha;
+            document.getElementById('hyp-pvalue').value = data.pvalue;
+
+            runHypothesisTest();
+        }
+
+        function runHypothesisTest() {
+            const h0 = document.getElementById('hyp-h0').value;
+            const ha = document.getElementById('hyp-ha').value;
+            const alpha = parseFloat(document.getElementById('hyp-alpha').value);
+            const pvalue = parseFloat(document.getElementById('hyp-pvalue').value);
+
+            if (isNaN(alpha) || isNaN(pvalue)) {
+                alert("Os coeficientes de tomada de decisão devem ser numéricos.");
+                return;
+            }
+
+            const isRejection = pvalue <= alpha;
+
+            // Altera o painel visual
+            const iconContainer = document.getElementById('decision-icon-container');
+            const title = document.getElementById('hyp-decision-title');
+            const reason = document.getElementById('hyp-decision-reason');
+            const conclText = document.getElementById('hyp-conclusion-text');
+
+            if (isRejection) {
+                iconContainer.className = "bg-rose-900/40 text-rose-400 p-3 rounded-2xl border border-rose-500/20";
+                iconContainer.innerHTML = `
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                `;
+                title.textContent = "Rejeitar a Hipótese Nula (H0)";
+                title.className = "text-2xl font-black text-rose-400";
+                reason.innerHTML = `P-valor (<span class="font-bold">${pvalue}</span>) &le; &alpha; (<span class="font-bold">${alpha}</span>). Forte evidência contra o status quo.`;
+                conclText.innerHTML = `<strong>Conclusão do Especialista:</strong> Os dados fornecem evidências suficientes para <strong>REJEITAR</strong> a hipótese de que "<em>${h0}</em>". O efeito observado é considerado estatisticamente significativo e não uma mera casualidade do acaso (adota-se a hipótese alternativa de que "<em>${ha}</em>").`;
+            } else {
+                iconContainer.className = "bg-emerald-900/40 text-emerald-400 p-3 rounded-2xl border border-emerald-500/20";
+                iconContainer.innerHTML = `
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                `;
+                title.textContent = "Manter a Hipótese Nula (H0)";
+                title.className = "text-2xl font-black text-emerald-400";
+                reason.innerHTML = `P-valor (<span class="font-bold">${pvalue}</span>) > &alpha; (<span class="font-bold">${alpha}</span>). Evidência insuficiente para rejeição.`;
+                conclText.innerHTML = `<strong>Conclusão do Especialista:</strong> Os dados coletados são insuficientes para contestar a validade da hipótese nula. Portanto, <strong>MANTÉM-SE</strong> a hipótese de que "<em>${h0}</em>". As variações encontradas são tratadas cientificamente como flutuações casuais do acaso.`;
+            }
+
+            // Geração Dinâmica da Matriz de Riscos de Erro
+            const sc = document.getElementById('hypothesis-scenario').value;
+            const err1Div = document.getElementById('text-error-type-1');
+            const err2Div = document.getElementById('text-error-type-2');
+
+            if (sc !== 'custom') {
+                const template = scenarioTemplates[sc];
+                err1Div.innerHTML = `${template.err1}<br><br>${template.err1Prac}`;
+                err2Div.innerHTML = `${template.err2}<br><br>${template.err2Prac}`;
+            } else {
+                err1Div.innerHTML = `Concluir que "<em>${ha}</em>" é real, quando na verdade o status quo correto seria de que "<em>${h0}</em>".<br><br><strong>Impacto Prático:</strong> Desperdiça recursos ou altera processos benéficos devido a uma interpretação errônea dos dados.`;
+                err2Div.innerHTML = `Decidir por manter a hipótese nula de que "<em>${h0}</em>", quando na verdade existia uma mudança real ou diferença de que "<em>${ha}</em>".<br><br><strong>Impacto Prático:</strong> Perda de uma oportunidade valiosa de melhoria ou otimização por falha em não identificar uma causa real existente.`;
+            }
+        }
+
+        // --- INICIALIZAÇÃO DO SISTEMA ---
+        window.onload = function() {
+            // Distribuições Discretas
+            calculateBinomial();
+            calculatePoisson();
+            
+            // Regressão
+            loadSampleRegressionData();
+            
+            // Normal
+            calculateNormal();
+            
+            // Hipóteses
+            runHypothesisTest();
+        };
+    </script>
+</body>
+</html>

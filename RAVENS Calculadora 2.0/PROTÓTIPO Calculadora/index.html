@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Estatística Integrada — Suíte Especialista FATEC</title>
+    <meta name="description" content="Calculadora estatística corporativa de alta fidelidade: descritiva, probabilística, regressão linear e testes de hipóteses com gráficos e SVGs dinâmicos.">
+    
+    <!-- Tailwind CSS para estilização moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para histograma e gráficos de pizza -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Configuração de Temas do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: {
+                            950: '#030712', // Escuro ultra profundo estilo dashboard premium
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos globais adicionais e fontes do Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 #020617;
+        }
+
+        /* Efeitos de Glassmorphism Premium */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.4);
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(51, 65, 85, 0.4);
+        }
+
+        .active-tab-glow {
+            box-shadow: 0 0 15px 2px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Customização de scrollbar para navegadores Webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .math-symbol {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Mobile Header Superior (Menu Colapsável) -->
+    <header class="lg:hidden border-b border-slate-800 bg-slate-950/85 backdrop-blur-md sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg shadow-indigo-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 11h.01M12 7h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold text-white tracking-tight">Estátistica Aplicada</h1>
+                <p class="text-[10px] text-slate-400">Suíte de Alta Fidelidade</p>
+            </div>
+        </div>
+        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-slate-400 hover:text-slate-200 focus:outline-none p-2 rounded-lg bg-slate-900 border border-slate-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="hamburger-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </header>
+
+    <div class="flex flex-1 relative min-h-screen overflow-hidden">
+        
+        <!-- Sidebar de Navegação (Desktop Fixa / Mobile Overlay) -->
+        <aside id="app-sidebar" class="glass-sidebar fixed inset-y-0 left-0 z-40 w-64 transform -translate-x-full lg:translate-x-0 lg:static flex flex-col transition-transform duration-300 ease-in-out">
+            <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 11h.01M12 7h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold text-white tracking-wider uppercase">FATEC RAVENS</h1>
+                    <p class="text-[10px] text-slate-400 font-semibold tracking-widest uppercase">Estatística Aplicada</p>
+                </div>
+            </div>
+
+            <!-- Lista de Abas de Navegação -->
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto" id="main-tabs">
+                <button onclick="switchTab('descritiva')" id="tab-btn-descritiva" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all bg-indigo-600 text-white active-tab-glow shadow-lg shadow-indigo-600/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    <span>1. Est. Descritiva</span>
+                </button>
+                <button onclick="switchTab('discretas')" id="tab-btn-discretas" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>
+                    </svg>
+                    <span>2. Distrib. Discretas</span>
+                </button>
+                <button onclick="switchTab('normal')" id="tab-btn-normal" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>3. Distribuição Normal</span>
+                </button>
+                <button onclick="switchTab('correlacao')" id="tab-btn-correlacao" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span>4. Correlação & Reta</span>
+                </button>
+                <button onclick="switchTab('hipoteses')" id="tab-btn-hipoteses" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>5. Teste de Hipóteses</span>
+                </button>
+            </nav>
+
+            <div class="p-6 border-t border-slate-800 text-[11px] text-slate-500 space-y-2">
+                <div class="flex items-center space-x-2 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span class="font-mono text-slate-400">SISTEMA ONLINE</span>
+                </div>
+                <p class="leading-relaxed">Suíte didática desenvolvida sob medida para apoio e resoluções completas de provas e exercícios.</p>
+            </div>
+        </aside>
+
+        <!-- Área de Conteúdo Principal -->
+        <main class="flex-1 overflow-y-auto px-6 py-8 md:px-8 space-y-8 z-10 w-full">
+            
+            <!-- ============================================== -->
+            <!-- MÓDULO 1: ESTATÍSTICA DESCRITIVA -->
+            <!-- ============================================== -->
+            <section id="pane-descritiva" class="space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">1. Estatística Descritiva</h2>
+                        <p class="text-xs text-slate-400 mt-1">Análise populacional ou amostral, tabelas de frequência de dados brutos e agrupados com medianas interpoladas.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Entrada de Dados -->
+                    <div class="xl:col-span-2 glass-panel rounded-2xl p-6 space-y-4 shadow-xl border border-slate-800/80">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span class="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono">Dados de Entrada</span>
+                            <span class="text-xs text-slate-400">Insira inteiros ou floats</span>
+                        </div>
+                        <div>
+                            <label for="descritiva-dados" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Massa de dados (separados por espaço ou vírgula)</label>
+                            <textarea id="descritiva-dados" placeholder="Ex: 10 12 13 15 15 16 18 20&#10;ou: 10, 12, 13, 15, 15, 16, 18, 20" 
+                                class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 font-mono focus:ring-2 focus:ring-indigo-500/20 text-indigo-300 resize-y h-32"></textarea>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="analyzeDescriptive()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10">
+                                Analisar Dados
+                            </button>
+                            <button onclick="clearDescriptive()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-5 py-3 rounded-xl border border-slate-700/60 transition-all">
+                                Limpar
+                            </button>
+                        </div>
+                        <div id="descritiva-error" class="hidden p-4 rounded-xl border border-rose-950 bg-rose-950/20 text-rose-300 text-xs font-mono"></div>
+                    </div>
+
+                    <!-- Configurações Didáticas (Regras FATEC) -->
+                    <div class="xl:col-span-1 bg-slate-900/40 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Configurações do Roteiro</span>
+                            <span class="w-2.5 h-2.5 bg-indigo-500 rounded-full"></span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="descritiva-metodoK" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Número de Classes (k) — Aula II</label>
+                                <select id="descritiva-metodoK" onchange="analyzeDescriptive()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                                    <option value="sturges" selected>Regra de Sturges (k = 1 + 3.322 * log10(n))</option>
+                                    <option value="sqrt">Regra da Raiz de n (k = √n)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="descritiva-arredH" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Arredondamento da Amplitude (h) — Aula II</label>
+                                <select id="descritiva-arredH" onchange="analyzeDescriptive()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                                    <option value="dec" selected>Amplitude Real (Manter decimais)</option>
+                                    <option value="ceil">Arredondar para Cima (Teto / Ceil)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="descritiva-tipoVar" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Cálculo de Variabilidade — Aula IV</label>
+                                <select id="descritiva-tipoVar" onchange="analyzeDescriptive()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                                    <option value="amostral" selected>Estatística Amostral (n - 1)</option>
+                                    <option value="populacional">Estatística Populacional (n)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="descritiva-decimais" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Casas Decimais de Exibição</label>
+                                <input type="number" id="descritiva-decimais" min="0" max="6" value="2" onchange="analyzeDescriptive()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs e Painéis Rápidos (ROL, MTC, MD) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="descritiva-kpi-container">
+                    <!-- Preenchido via JS -->
+                </div>
+
+                <!-- Tabelas de Frequências (Simples e Agrupadas) -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <!-- Tabela de Frequência Simples -->
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-lg space-y-4">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span>Distribuição de Frequência Simples (Variável Discreta)</span>
+                            <span class="text-[10px] text-slate-400 font-normal">ROL Individual</span>
+                        </h3>
+                        <div class="overflow-x-auto min-h-[220px]" id="descritiva-tbl-simples">
+                            <p class="text-slate-500 text-xs italic">Insira os dados acima e clique em analisar para gerar a tabela de frequência simples.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Frequência Agrupada em Classes -->
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-lg space-y-4">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span>Distribuição por Intervalo de Classes (Variável Contínua)</span>
+                            <span class="text-[10px] text-indigo-400 font-normal" id="descritiva-info-classes-config"></span>
+                        </h3>
+                        <div class="overflow-x-auto min-h-[220px]" id="descritiva-tbl-classes">
+                            <p class="text-slate-500 text-xs italic">Insira os dados acima e clique em analisar para gerar a tabela por classes com os limites e pontos médios.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memorial Pedagógico: Mediana Agrupada -->
+                <div id="descritiva-memorial-agrupada" class="hidden glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-lg space-y-4 bg-slate-900/35">
+                    <!-- Conteúdo inserido dinamicamente por JS -->
+                </div>
+
+                <!-- Gráficos -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-lg space-y-4">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">Histograma de Frequências (Por Classe)</h4>
+                        <div class="relative h-64 flex items-center justify-center">
+                            <canvas id="descritiva-chart-hist"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-lg space-y-4">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">Participação Relativa Simples (Pizza)</h4>
+                        <div class="relative h-64 flex items-center justify-center">
+                            <canvas id="descritiva-chart-pizza"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- MÓDULO 2: DISTRIBUIÇÕES DISCRETAS DE PROBABILIDADE -->
+            <!-- ============================================== -->
+            <section id="pane-discretas" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">2. Distribuições Discretas de Probabilidade</h2>
+                        <p class="text-xs text-slate-400 mt-1">Cálculo e demonstração matemática de probabilidades via modelo Binomial (Bernoulli) e Poisson.</p>
+                    </div>
+                    
+                    <!-- Sub-abas Binomial / Poisson -->
+                    <div class="bg-slate-950/70 p-1 rounded-xl border border-slate-800/80 inline-flex mt-4 md:mt-0">
+                        <button onclick="toggleDiscreteSub('binomial')" id="btn-sub-binom" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white">
+                            Binomial
+                        </button>
+                        <button onclick="toggleDiscreteSub('poisson')" id="btn-sub-poisson" class="px-4 py-2 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200">
+                            Poisson
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-aba 1: BINOMIAL -->
+                <div id="discrete-binom-block" class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Parâmetros Binomial -->
+                    <div class="xl:col-span-1 glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Parâmetros</span>
+                            <span class="text-xs text-indigo-400 font-normal">Binomial</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="binom-n" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Número de tentativas ($n$)</label>
+                                <input type="number" id="binom-n" value="5" min="1" oninput="runBinomial()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Total de repetições isoladas do ensaio de Bernoulli.</span>
+                            </div>
+                            <div>
+                                <label for="binom-k" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Sucessos esperados ($k$)</label>
+                                <input type="number" id="binom-k" value="3" min="0" oninput="runBinomial()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Número de sucessos de interesse (0 &le; k &le; n).</span>
+                            </div>
+                            <div>
+                                <label for="binom-p" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Chance de Sucesso ($p$)</label>
+                                <input type="number" id="binom-p" value="0.5" step="0.01" min="0" max="1" oninput="runBinomial()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Probabilidade de sucesso por tentativa (entre 0.00 e 1.00).</span>
+                            </div>
+                        </div>
+                        <button onclick="runBinomial()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10 text-xs mt-2 uppercase tracking-wide">
+                            Calcular
+                        </button>
+                    </div>
+
+                    <!-- Resultados Binomial -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Cards de Decisão -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">Exato: P(X = k)</span>
+                                <span class="text-3xl font-black text-indigo-400 block my-1 font-mono" id="binom-res-exact">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Exatamente $k$ sucessos</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">No máximo: P(X &le; k)</span>
+                                <span class="text-3xl font-black text-emerald-400 block my-1 font-mono" id="binom-res-max">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Somatório de 0 até $k$</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">Pelo menos: P(X &ge; k)</span>
+                                <span class="text-3xl font-black text-amber-400 block my-1 font-mono" id="binom-res-min">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Somatório de $k$ até $n$</span>
+                            </div>
+                        </div>
+
+                        <!-- Memorial Binomial -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                                <span>Memorial de Cálculo Passo a Passo</span>
+                                <span class="text-[10px] text-slate-400 font-normal italic">Fórmula Didática do Bernoulli</span>
+                            </h4>
+                            <div class="space-y-4 text-xs leading-relaxed text-slate-300" id="binom-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-aba 2: POISSON -->
+                <div id="discrete-poisson-block" class="grid grid-cols-1 xl:grid-cols-3 gap-6 hidden">
+                    <!-- Parâmetros Poisson -->
+                    <div class="xl:col-span-1 glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Parâmetros</span>
+                            <span class="text-xs text-indigo-400 font-normal">Poisson</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="poisson-lambda" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Média de Ocorrências ($\lambda$)</label>
+                                <input type="number" id="poisson-lambda" value="2" min="0.001" step="0.1" oninput="runPoisson()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Número médio esperado de ocorrências por unidade espacial/temporal.</span>
+                            </div>
+                            <div>
+                                <label for="poisson-k" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Ocorrências de Interesse ($k$)</label>
+                                <input type="number" id="poisson-k" value="3" min="0" oninput="runPoisson()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Ocorrências de interesse no período a serem avaliadas.</span>
+                            </div>
+                        </div>
+                        <button onclick="runPoisson()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10 text-xs mt-2 uppercase tracking-wide">
+                            Calcular
+                        </button>
+                    </div>
+
+                    <!-- Resultados Poisson -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Cards de Decisão -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">Exato: P(X = k)</span>
+                                <span class="text-3xl font-black text-indigo-400 block my-1 font-mono" id="poisson-res-exact">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Exatamente $k$ ocorrências</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">No máximo: P(X &le; k)</span>
+                                <span class="text-3xl font-black text-emerald-400 block my-1 font-mono" id="poisson-res-max">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Somatório de 0 até $k$</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-center relative overflow-hidden group shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase block mb-1">Pelo menos: P(X &ge; k)</span>
+                                <span class="text-3xl font-black text-amber-400 block my-1 font-mono" id="poisson-res-min">0.00%</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Via Complementar $1 - P(X < k)$</span>
+                            </div>
+                        </div>
+
+                        <!-- Memorial Poisson -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                                <span>Memorial de Cálculo Passo a Passo</span>
+                                <span class="text-[10px] text-slate-400 font-normal italic">Fórmula Exponencial de Poisson</span>
+                            </h4>
+                            <div class="space-y-4 text-xs leading-relaxed text-slate-300" id="poisson-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- MÓDULO 3: DISTRIBUIÇÃO NORMAL -->
+            <!-- ============================================== -->
+            <section id="pane-normal" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">3. Distribuição Normal (Contínua)</h2>
+                        <p class="text-xs text-slate-400 mt-1">Integração do sino de Gauss via escore Z e aproximações gaussianas com representação vetorial em tempo real.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Parâmetros de Entrada da Normal -->
+                    <div class="xl:col-span-1 glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Parâmetros</span>
+                            <span class="text-xs text-indigo-400 font-normal">Curva de Gauss</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="normal-media" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Média Aritmética ($\mu$ ou $\overline{x}$)</label>
+                                <input type="number" id="normal-media" value="4.0" step="0.1" oninput="runNormal()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Ponto central simétrico da curva (nota/peso médio).</span>
+                            </div>
+                            <div>
+                                <label for="normal-desvio" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Desvio Padrão ($s$ ou $\sigma$)</label>
+                                <input type="number" id="normal-desvio" value="2.0" step="0.1" min="0.001" oninput="runNormal()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                <span class="text-[9px] text-slate-500 mt-1 block">Medida de dispersão populacional ou amostral.</span>
+                            </div>
+                            <div class="border-t border-slate-800 pt-3">
+                                <label for="normal-tipo" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Intervalo de Probabilidade</label>
+                                <select id="normal-tipo" onchange="toggleNormalInputs(); runNormal();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                                    <option value="greater">Maior que X1: P(X > X1)</option>
+                                    <option value="less" selected>Menor que X1: P(X < X1)</option>
+                                    <option value="between">Entre dois valores: P(X1 < X < X2)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label id="normal-lbl-x1" for="normal-x1" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Valor Limite (X1)</label>
+                                <input type="number" id="normal-x1" value="6.0" step="0.1" oninput="runNormal()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                            </div>
+                            <div id="normal-x2-wrapper" class="hidden">
+                                <label for="normal-x2" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Valor Limite Superior (X2)</label>
+                                <input type="number" id="normal-x2" value="10.0" step="0.1" oninput="runNormal()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                            </div>
+                        </div>
+                        <button onclick="runNormal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10 text-xs mt-2 uppercase tracking-wide">
+                            Calcular Área (Z)
+                        </button>
+                    </div>
+
+                    <!-- Gráfico e Resoluções Normal -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Dashboard e Curva Sino SVG -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+                            <div class="space-y-2 text-center md:text-left flex-1">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Área Gaussiana Sob Curva</span>
+                                <h4 class="text-4xl font-black text-indigo-400 tracking-tight font-mono" id="normal-res-percentage">0.00%</h4>
+                                <span class="text-xs text-slate-500 block font-mono" id="normal-res-expression">P(X < 6.0) correspondente a P(Z < 1.00)</span>
+                            </div>
+                            
+                            <!-- Sino de Gauss Dinâmico em SVG -->
+                            <div class="w-64 h-36 bg-slate-950/60 rounded-xl border border-slate-800/80 p-3 flex items-center justify-center relative shadow-inner">
+                                <svg id="normal-svg-gauss" viewBox="0 0 200 100" class="w-full h-full overflow-visible">
+                                    <!-- Desenhado dinamicamente via JS -->
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Memorial Normal -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                                <span>Memorial Detalhado da Padronização</span>
+                                <span class="text-[10px] text-indigo-400 font-normal italic">Tabela de Distribuição Normal (0 a Z)</span>
+                            </h4>
+                            <div class="space-y-4 text-xs leading-relaxed text-slate-300" id="normal-steps">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- MÓDULO 4: CORRELAÇÃO E REGRESSÃO LINEAR -->
+            <!-- ============================================== -->
+            <section id="pane-correlacao" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">4. Correlação e Regressão Linear</h2>
+                        <p class="text-xs text-slate-400 mt-1">Mapeamento linear de Pearson e modelos preditivos de tendência com gráficos vetoriais adaptativos.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Entrada de Pares Ordenados -->
+                    <div class="xl:col-span-1 glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl flex flex-col h-[520px]">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono">Pares Ordenados (X, Y)</h3>
+                            <div class="flex space-x-1.5">
+                                <button onclick="loadSampleCorrelation()" class="text-[9px] bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 px-2 py-1 rounded border border-indigo-500/20 font-bold transition-all">
+                                    Notas da Aula
+                                </button>
+                                <button onclick="clearCorrelationPoints()" class="text-[9px] bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 px-2 py-1 rounded border border-rose-500/20 font-bold transition-all">
+                                    Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Formulário rápido para adicionar ponto -->
+                        <div class="grid grid-cols-2 gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                            <div>
+                                <label for="reg-new-x" class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">X (Indep.)</label>
+                                <input type="number" id="reg-new-x" value="5" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                            </div>
+                            <div>
+                                <label for="reg-new-y" class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Y (Dep.)</label>
+                                <input type="number" id="reg-new-y" value="5" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                            </div>
+                            <button onclick="addCorrelationPoint()" class="col-span-2 mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white py-1.5 rounded-lg text-xs font-bold transition-all">
+                                Adicionar Par
+                            </button>
+                        </div>
+
+                        <!-- Lista de pontos adicionados -->
+                        <div class="flex-1 overflow-y-auto border border-slate-800/80 rounded-xl bg-slate-950/40 divide-y divide-slate-800/40" id="reg-points-list">
+                            <!-- Inserido via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Gráficos e Resultados Regressão -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Dashboard Regressão -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">Pearson ($r$)</span>
+                                <div class="my-2">
+                                    <span class="text-3xl font-black text-indigo-400 block tracking-tight font-mono" id="reg-val-r">0.000</span>
+                                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded inline-block mt-1 font-mono" id="reg-classification">Sem dados</span>
+                                </div>
+                                <span class="text-[9px] text-slate-500 leading-tight">Força e acoplamento linear.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">Equação de Regressão</span>
+                                <div class="my-2">
+                                    <span class="text-xl font-bold text-emerald-400 block font-mono" id="reg-equation">y = ax + b</span>
+                                    <span class="text-[9px] text-slate-400 block font-mono mt-1" id="reg-coefs">a = 0.00 | b = 0.00</span>
+                                </div>
+                                <span class="text-[9px] text-slate-500 leading-tight">Modelo linear ótimo.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">Amostras ativas (n)</span>
+                                <span class="text-4xl font-black text-slate-100 block my-2 font-mono" id="reg-val-n">0</span>
+                                <span class="text-[9px] text-slate-500 leading-tight">Pares de dados computados.</span>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Dispersão e Linha de Regressão SVG -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono">Dispersão Espacial & Linha de Tendência</h4>
+                            <div class="w-full h-64 bg-slate-950/60 rounded-xl border border-slate-800/80 p-3 flex items-center justify-center relative shadow-inner">
+                                <svg id="reg-svg-scatter" viewBox="0 0 400 240" class="w-full h-full overflow-visible">
+                                    <!-- Gerado dinamicamente via JS -->
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Preditor Dinâmico Integrado -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono">Calculadora Preditora Linear</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="predict-x" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Insira qualquer valor de X para estimar Y</label>
+                                        <input type="number" id="predict-x" value="4.0" step="0.5" oninput="runPredictor()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                    </div>
+                                </div>
+                                <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+                                    <span class="text-[9px] uppercase font-bold tracking-widest text-slate-400">Predição do Modelo</span>
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-3xl font-black text-emerald-400 font-mono" id="predict-out-y">0.00</span>
+                                        <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded" id="predict-classification-badge">---</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400" id="predict-explanation">Forneça pelo menos 2 pontos e altere o X de entrada.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- MÓDULO 5: TESTE DE HIPÓTESES -->
+            <!-- ============================================== -->
+            <section id="pane-hipoteses" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">5. Tomada de Decisão & Teste de Hipóteses</h2>
+                        <p class="text-xs text-slate-400 mt-1">Validação de hipóteses estatísticas didáticas com simulações dinâmicas de riscos e erros tipo I e II.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Configurações do Caso Clínico / Pedagógico -->
+                    <div class="xl:col-span-1 glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Parâmetros de Teste</span>
+                            <span class="text-xs text-indigo-400 font-normal">Cenários</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="hyp-scenario" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Selecione o Cenário Didático</label>
+                                <select id="hyp-scenario" onchange="loadHypothesisScenario()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                                    <option value="diet" selected>Plano de Dieta (30 dias) — Aula IX</option>
+                                    <option value="sensor">Sensor de Incêndio/Fumaça — Didático</option>
+                                    <option value="court">Tribunal de Justiça (Inocência) — Didático</option>
+                                    <option value="custom">Caso Customizado (Editar Campos)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="hyp-h0" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Hipótese Nula ($H_0$)</label>
+                                <input type="text" id="hyp-h0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                            </div>
+                            <div>
+                                <label for="hyp-ha" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Hipótese Alternativa ($H_a$)</label>
+                                <input type="text" id="hyp-ha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="hyp-alpha" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Significância ($\alpha$)</label>
+                                    <input type="number" id="hyp-alpha" value="0.05" step="0.01" min="0.001" max="0.5" oninput="calculateHypothesis()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                </div>
+                                <div>
+                                    <label for="hyp-pvalue" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">P-valor</label>
+                                    <input type="number" id="hyp-pvalue" value="0.03" step="0.01" min="0" max="1" oninput="calculateHypothesis()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-mono text-slate-200">
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="calculateHypothesis()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10 text-xs mt-2 uppercase tracking-wide">
+                            Rodar Teste Científico
+                        </button>
+                    </div>
+
+                    <!-- Painéis de Decisões e Erros -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Placa de Decisão Central -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Conclusão Crítica / Tomada de Decisão</span>
+                            <div class="flex items-center space-x-4">
+                                <div id="hyp-decision-icon" class="p-3.5 rounded-2xl border">
+                                    <!-- Inserido dinamicamente -->
+                                </div>
+                                <div>
+                                    <h4 class="text-2xl font-black tracking-tight" id="hyp-decision-title">Calculando...</h4>
+                                    <p class="text-xs text-slate-400 font-mono" id="hyp-decision-reason"></p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-slate-950/70 rounded-xl border border-slate-800 text-xs leading-relaxed text-slate-300" id="hyp-conclusion-text">
+                                <!-- Texto descritivo -->
+                            </div>
+                        </div>
+
+                        <!-- Matriz de Risco Pedagógica Contextualizada -->
+                        <div class="glass-panel rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+                            <h4 class="text-sm font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                                <span>Matriz de Riscos & Erros Associados</span>
+                                <span class="text-[10px] text-amber-500 italic font-normal">Impactos no Mundo Real</span>
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="p-5 bg-rose-950/10 border border-rose-500/10 rounded-2xl space-y-2 relative overflow-hidden">
+                                    <div class="absolute right-3 top-3 text-[10px] font-black text-rose-500/20 font-mono">TIPO I (&alpha;)</div>
+                                    <span class="text-xs font-bold text-rose-400 uppercase tracking-widest block border-b border-rose-500/25 pb-1">Erro Tipo I (Falso Positivo)</span>
+                                    <p class="text-[10px] text-slate-400 italic">Rejeitar a hipótese nula $H_0$ quando ela na verdade é verdadeira.</p>
+                                    <p class="text-xs text-slate-200 leading-relaxed pt-2 border-t border-slate-800/40" id="hyp-err-1-text">
+                                        <!-- Inserido dinamicamente -->
+                                    </p>
+                                </div>
+                                <div class="p-5 bg-amber-950/10 border border-amber-500/10 rounded-2xl space-y-2 relative overflow-hidden">
+                                    <div class="absolute right-3 top-3 text-[10px] font-black text-amber-500/20 font-mono">TIPO II (&beta;)</div>
+                                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block border-b border-amber-500/25 pb-1">Erro Tipo II (Falso Negativo)</span>
+                                    <p class="text-[10px] text-slate-400 italic">Manter a hipótese nula $H_0$ quando ela na verdade é falsa.</p>
+                                    <p class="text-xs text-slate-200 leading-relaxed pt-2 border-t border-slate-800/40" id="hyp-err-2-text">
+                                        <!-- Inserido dinamicamente -->
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Rodapé corporativo -->
+    <footer class="border-t border-slate-800 py-6 bg-slate-950/80 text-[10px] text-slate-500 text-center font-mono relative z-20">
+        <p>© 2026 Estatística Aplicada & Ciência de Dados — FATEC Ravens Sênior UI/UX</p>
+    </footer>
+
+    <!-- ============================================== -->
+    <!-- SCRIPTS E MÁQUINA DE CÁLCULO JavaScript -->
+    <!-- ============================================== -->
+    <script>
+        // ==========================================
+        // SISTEMA DE CONTROLE DE ABAS E EVENTOS
+        // ==========================================
+        function switchTab(tabId) {
+            // Abas Principais
+            const tabs = ['descritiva', 'discretas', 'normal', 'correlacao', 'hipoteses'];
+            tabs.forEach(t => {
+                document.getElementById('pane-' + t).classList.add('hidden');
+                
+                const btn = document.getElementById('tab-btn-' + t);
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/40";
+            });
+
+            // Exibe a ativa
+            document.getElementById('pane-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            activeBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-semibold tracking-wide transition-all bg-indigo-600 text-white active-tab-glow shadow-lg shadow-indigo-600/10";
+
+            // Fechar sidebar mobile ao mudar de aba
+            const sidebar = document.getElementById('app-sidebar');
+            sidebar.classList.add('-translate-x-full');
+
+            // Gatilho de recálculo específico para recarregar canvas de gráficos ou SVGs
+            if (tabId === 'descritiva') {
+                analyzeDescriptive();
+            } else if (tabId === 'discretas') {
+                runBinomial();
+                runPoisson();
+            } else if (tabId === 'normal') {
+                runNormal();
+            } else if (tabId === 'correlacao') {
+                if (correlationPoints.length === 0) {
+                    loadSampleCorrelation();
+                } else {
+                    recalculateCorrelation();
+                }
+            } else if (tabId === 'hipoteses') {
+                calculateHypothesis();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('app-sidebar');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        function toggleDiscreteSub(subType) {
+            const btnBin = document.getElementById('btn-sub-binom');
+            const btnPoi = document.getElementById('btn-sub-poisson');
+            const blockBin = document.getElementById('discrete-binom-block');
+            const blockPoi = document.getElementById('discrete-poisson-block');
+
+            if (subType === 'binomial') {
+                btnBin.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white";
+                btnPoi.className = "px-4 py-2 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200";
+                blockBin.classList.remove('hidden');
+                blockPoi.classList.add('hidden');
+                runBinomial();
+            } else {
+                btnPoi.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white";
+                btnBin.className = "px-4 py-2 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200";
+                blockPoi.classList.remove('hidden');
+                blockBin.classList.add('hidden');
+                runPoisson();
+            }
+        }
+
+        // ==========================================
+        // UTILITÁRIOS E AUXILIARES MATEMÁTICOS
+        // ==========================================
+        function fmt(num, dec) {
+            if (typeof num !== "number" || !isFinite(num)) return String(num);
+            return num.toFixed(dec);
+        }
+
+        function factorial(num) {
+            if (num < 0) return 0;
+            if (num === 0 || num === 1) return 1;
+            let res = 1;
+            for (let i = 2; i <= num; i++) res *= i;
+            return res;
+        }
+
+        function combinations(n, k) {
+            if (k < 0 || k > n) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        // Abramowitz & Stegun de alta precisão (CDF de normal padrão N(0,1))
+        function stdNormalCDF(z) {
+            const sign = z < 0 ? -1 : 1;
+            const x = Math.abs(z);
+            const p = 0.2316419;
+            const b1 = 0.319381530;
+            const b2 = -0.356563782;
+            const b3 = 1.781477937;
+            const b4 = -1.821255978;
+            const b5 = 1.330274429;
+            
+            const t = 1.0 / (1.0 + p * x);
+            const exponent = -0.5 * x * x;
+            const phi = (1.0 / Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
+            // IMPORTANTE: Correção do operador bitwise XOR (^) para multiplicação em JS
+            const cdfVal = 1.0 - phi * (b1 * t + b2 * t * t + b3 * Math.pow(t, 3) + b4 * Math.pow(t, 4) + b5 * Math.pow(t, 5));
+            
+            if (sign < 0) {
+                return 1.0 - cdfVal;
+            }
+            return cdfVal;
+        }
+
+        function getGaussianTableValue(z) {
+            // Retorna a área de 0 até z positivo
+            return Math.abs(stdNormalCDF(z) - 0.5);
+        }
+
+        // ==========================================
+        // LÓGICA DO MÓDULO 1: EST. DESCRITIVA
+        // ==========================================
+        let descritivaChartHistInstance = null;
+        let descritivaChartPizzaInstance = null;
+
+        function sanitizeRawInput(texto) {
+            if (!texto || texto.trim() === "") throw new Error("A caixa de texto está vazia.");
+            const parseado = texto.replace(/,/g, " ");
+            const partes = parseado.split(/\s+/).map(s => s.trim()).filter(Boolean);
+            if (partes.length === 0) throw new Error("Nenhum dado numérico pôde ser identificado.");
+
+            const valores = partes.map(p => {
+                const num = Number(p.replace(",", "."));
+                if (!Number.isFinite(num)) throw new Error(`Termo inválido detectado: '${p}'. Insira apenas números.`);
+                return num;
+            });
+
+            if (valores.length < 2) throw new Error("A massa de dados deve conter pelo menos 2 números para cálculos de variabilidade.");
+            return valores;
+        }
+
+        function calculateDescriptiveStats(valores, tipoVar) {
+            const n = valores.length;
+            const vRol = [...valores].sort((a, b) => a - b);
+            const vMin = vRol[0];
+            const vMax = vRol[n - 1];
+            const AT = vMax - vMin;
+
+            // Média
+            const soma = vRol.reduce((acc, v) => acc + v, 0);
+            const media = soma / n;
+
+            // Mediana
+            let mediana = 0;
+            const mid = Math.floor(n / 2);
+            if (n % 2 === 1) {
+                mediana = vRol[mid];
+            } else {
+                mediana = (vRol[mid - 1] + vRol[mid]) / 2;
+            }
+
+            // Moda
+            const frequencias = new Map();
+            vRol.forEach(v => frequencias.set(v, (frequencias.get(v) || 0) + 1));
+            
+            let maxFreq = 0;
+            frequencias.forEach(f => maxFreq = Math.max(maxFreq, f));
+
+            let modas = [];
+            let tipoModa = "Amodal";
+
+            if (maxFreq > 1) {
+                frequencias.forEach((f, val) => {
+                    if (f === maxFreq) modas.push(val);
+                });
+                modas.sort((a, b) => a - b);
+                if (modas.length === 1) tipoModa = "Unimodal";
+                else if (modas.length === 2) tipoModa = "Bimodal";
+                else tipoModa = "Multimodal";
+            }
+
+            // Variância e Desvio Padrão
+            let somaDesvios = 0;
+            vRol.forEach(v => somaDesvios += Math.pow(v - media, 2));
+            const denom = tipoVar === "populacional" ? n : (n - 1);
+            
+            const variancia = somaDesvios / denom;
+            const desvio = Math.sqrt(variancia);
+
+            // Coeficiente de Variação
+            const CV = media !== 0 ? (desvio / media) * 100 : 0;
+
+            return { n, rol: vRol, vMin, vMax, AT, media, mediana, moda: { tipo: tipoModa, valores: modas, freq: maxFreq }, variancia, desvio, CV };
+        }
+
+        function buildFrequencyTables(rol, metodoK, arredH) {
+            const n = rol.length;
+            const vMin = rol[0];
+            const vMax = rol[n - 1];
+            const AT = vMax - vMin;
+
+            // Frequência Simples
+            const simplesMap = new Map();
+            rol.forEach(v => simplesMap.set(v, (simplesMap.get(v) || 0) + 1));
+            const distinctVals = [...simplesMap.keys()].sort((a, b) => a - b);
+            
+            let FiAcumulada = 0;
+            const tabelaSimples = distinctVals.map(xi => {
+                const fi = simplesMap.get(xi);
+                FiAcumulada += fi;
+                const fr = (fi / n) * 100;
+                const Fr = (FiAcumulada / n) * 100;
+                return { xi, fi, Fi: FiAcumulada, fr, Fr };
+            });
+
+            // Classes (Dados Agrupados)
+            let k = 0;
+            if (metodoK === "sqrt") {
+                k = Math.max(1, Math.ceil(Math.sqrt(n)));
+            } else {
+                k = Math.max(1, Math.ceil(1 + 3.322 * Math.log10(n)));
+            }
+
+            if (AT === 0) {
+                // Se amplitude for zero, todos os números são idênticos. Não monta classes.
+                return { simples: tabelaSimples, classes: [], k, h: 0, semClasses: true };
+            }
+
+            let h = AT / k;
+            if (arredH === "ceil") {
+                h = Math.ceil(h);
+            }
+
+            const classes = [];
+            let limiteInf = vMin;
+            for (let i = 0; i < k; i++) {
+                let limiteSup = limiteInf + h;
+                // Ajuste numérico fino para garantir a inclusão do elemento máximo na última classe
+                if (i === k - 1 && limiteSup < vMax) {
+                    limiteSup = vMax;
+                }
+                classes.push({
+                    index: i + 1,
+                    li: limiteInf,
+                    ls: limiteSup,
+                    classeStr: `[${limiteInf.toFixed(3)} ⊢ ${limiteSup.toFixed(3)})`,
+                    xi: (limiteInf + limiteSup) / 2,
+                    fi: 0
+                });
+                limiteInf = limiteSup;
+            }
+
+            // Alocação fi nas classes
+            rol.forEach(v => {
+                let alocado = false;
+                for (let i = 0; i < classes.length; i++) {
+                    const c = classes[i];
+                    // O último intervalo de Sturges didático engloba o limite superior [li, ls] inclusive
+                    const isLast = i === classes.length - 1;
+                    if (isLast) {
+                        if (v >= c.li && v <= c.ls + 1e-9) {
+                            c.fi++;
+                            alocado = true;
+                            break;
+                        }
+                    } else {
+                        if (v >= c.li && v < c.ls) {
+                            c.fi++;
+                            alocado = true;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            let FiClasses = 0;
+            classes.forEach(c => {
+                FiClasses += c.fi;
+                c.Fi = FiClasses;
+                c.fr = (c.fi / n) * 100;
+                c.Fr = (FiClasses / n) * 100;
+            });
+
+            return { simples: tabelaSimples, classes, k, h, semClasses: false };
+        }
+
+        function analyzeDescriptive() {
+            const errorBox = document.getElementById('descritiva-error');
+            errorBox.classList.add('hidden');
+            errorBox.textContent = "";
+
+            const dadosBrutos = document.getElementById('descritiva-dados').value;
+            const metodoK = document.getElementById('descritiva-metodoK').value;
+            const arredH = document.getElementById('descritiva-arredH').value;
+            const tipoVar = document.getElementById('descritiva-tipoVar').value;
+            const dec = Math.max(0, Math.min(6, parseInt(document.getElementById('descritiva-decimais').value) || 2));
+
+            let valores = [];
+            try {
+                valores = sanitizeRawInput(dadosBrutos);
+            } catch (e) {
+                errorBox.textContent = e.message;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const stats = calculateDescriptiveStats(valores, tipoVar);
+            const tables = buildFrequencyTables(stats.rol, metodoK, arredH);
+
+            // 1. RENDERIZAR KPIs
+            const kpiDiv = document.getElementById('descritiva-kpi-container');
+            const modasFormatadas = stats.moda.tipo === "Amodal" ? "Amodal" : `${stats.moda.tipo}: [${stats.moda.valores.map(m => m.toFixed(dec)).join(", ")}]`;
+            kpiDiv.innerHTML = `
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block font-mono border-b border-slate-800/60 pb-1.5 mb-2">ROL Geral & Amostra</span>
+                        <div class="space-y-1.5 text-xs text-slate-300">
+                            <p>Tamanho da Amostra (<span class="font-bold text-white font-mono">n</span>): <span class="text-white font-mono font-bold">${stats.n}</span></p>
+                            <div class="max-h-20 overflow-y-auto pr-1">
+                                <p class="leading-relaxed">ROL: [<span class="font-mono text-indigo-300 text-[11px]">${stats.rol.map(r => r.toFixed(dec)).join(", ")}</span>]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block font-mono border-b border-slate-800/60 pb-1.5 mb-2">MTC (Tendência Central)</span>
+                        <div class="space-y-1.5 text-xs text-slate-300 font-mono">
+                            <p>Média (x̄): <span class="text-indigo-400 font-bold">${stats.media.toFixed(dec)}</span></p>
+                            <p>Mediana (Md): <span class="text-indigo-400 font-bold">${stats.mediana.toFixed(dec)}</span></p>
+                            <p>Moda (Mo): <span class="text-indigo-400 font-bold">${modasFormatadas}</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest block font-mono border-b border-slate-800/60 pb-1.5 mb-2">MD (Dispersão / Variabilidade)</span>
+                        <div class="space-y-1 text-xs text-slate-300 font-mono">
+                            <p>Amp. Total (AT): <span class="text-white">${stats.AT.toFixed(dec)}</span></p>
+                            <p>Variância (${tipoVar === 'populacional' ? 'σ²' : 's²'}): <span class="text-white">${stats.variancia.toFixed(dec)}</span></p>
+                            <p>Desv. Padrão (${tipoVar === 'populacional' ? 'σ' : 's'}): <span class="text-white">${stats.desvio.toFixed(dec)}</span></p>
+                            <p>Coef. Var (CV): <span class="text-emerald-400 font-bold">${stats.CV.toFixed(2)}%</span></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 2. RENDERIZAR TABELA SIMPLES
+            const divSimples = document.getElementById('descritiva-tbl-simples');
+            let simpleRows = tables.simples.map(r => `
+                <tr class="border-b border-slate-800/60 hover:bg-slate-800/20 transition-all font-mono text-[11px] text-slate-300">
+                    <td class="px-3 py-2 font-bold text-white">${r.xi.toFixed(dec)}</td>
+                    <td class="px-3 py-2 text-indigo-300 font-bold">${r.fi}</td>
+                    <td class="px-3 py-2">${r.Fi}</td>
+                    <td class="px-3 py-2 text-emerald-400">${r.fr.toFixed(2)}%</td>
+                    <td class="px-3 py-2 text-emerald-500">${r.Fr.toFixed(2)}%</td>
+                </tr>
+            `).join("");
+
+            divSimples.innerHTML = `
+                <table class="w-full border-collapse text-left">
+                    <thead>
+                        <tr class="border-b border-slate-800 font-mono text-[10px] font-bold text-slate-400 uppercase">
+                            <th class="px-3 py-2">xi (Valor)</th>
+                            <th class="px-3 py-2">fi (Absoluta)</th>
+                            <th class="px-3 py-2">Fi (Acumulada)</th>
+                            <th class="px-3 py-2">fr % (Relativa)</th>
+                            <th class="px-3 py-2">Fr % (Rel. Acum.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${simpleRows}
+                    </tbody>
+                </table>
+            `;
+
+            // 3. RENDERIZAR TABELA CLASSES
+            const divClasses = document.getElementById('descritiva-tbl-classes');
+            const infoClassesEl = document.getElementById('descritiva-info-classes-config');
+            const memorialDiv = document.getElementById('descritiva-memorial-agrupada');
+
+            if (tables.semClasses) {
+                divClasses.innerHTML = `<p class="text-slate-500 text-xs italic">Amplitude total nula. Classes não geradas.</p>`;
+                infoClassesEl.textContent = "";
+                memorialDiv.classList.add('hidden');
+            } else {
+                infoClassesEl.textContent = `k = ${tables.k} · h = ${tables.h.toFixed(dec)} (${arredH === 'ceil' ? 'Ceil' : 'Decimais'})`;
+                
+                let classRows = tables.classes.map(c => `
+                    <tr class="border-b border-slate-800/60 hover:bg-slate-800/20 transition-all font-mono text-[11px] text-slate-300">
+                        <td class="px-3 py-2 font-bold text-indigo-300">${c.classeStr}</td>
+                        <td class="px-3 py-2">${c.li.toFixed(dec)}</td>
+                        <td class="px-3 py-2">${c.ls.toFixed(dec)}</td>
+                        <td class="px-3 py-2 text-white">${c.xi.toFixed(dec)}</td>
+                        <td class="px-3 py-2 font-bold text-white">${c.fi}</td>
+                        <td class="px-3 py-2 text-emerald-400">${c.fr.toFixed(2)}%</td>
+                        <td class="px-3 py-2">${c.Fi}</td>
+                        <td class="px-3 py-2 text-emerald-500">${c.Fr.toFixed(2)}%</td>
+                    </tr>
+                `).join("");
+
+                divClasses.innerHTML = `
+                    <table class="w-full border-collapse text-left">
+                        <thead>
+                            <tr class="border-b border-slate-800 font-mono text-[10px] font-bold text-slate-400 uppercase">
+                                <th class="px-3 py-2">Classe [li ⊢ ls)</th>
+                                <th class="px-3 py-2">li</th>
+                                <th class="px-3 py-2">ls</th>
+                                <th class="px-3 py-2">xi (Médio)</th>
+                                <th class="px-3 py-2">fi</th>
+                                <th class="px-3 py-2">fr %</th>
+                                <th class="px-3 py-2">Fi</th>
+                                <th class="px-3 py-2">Fr %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${classRows}
+                        </tbody>
+                    </table>
+                `;
+
+                // 4. MEMORIAL DE MEDIANA AGRUPADA (INTERPOLAÇÃO)
+                const pos = stats.n / 2;
+                const idxClassMe = tables.classes.findIndex(c => c.Fi >= pos);
+                if (idxClassMe !== -1) {
+                    const cMe = tables.classes[idxClassMe];
+                    const li = cMe.li;
+                    const fme = cMe.fi;
+                    const Fant = idxClassMe > 0 ? tables.classes[idxClassMe - 1].Fi : 0;
+                    const h = tables.h;
+
+                    let MeAgrupada = 0;
+                    if (fme > 0) {
+                        MeAgrupada = li + (((pos - Fant) / fme) * h);
+                    }
+
+                    memorialDiv.classList.remove('hidden');
+                    memorialDiv.innerHTML = `
+                        <h4 class="text-xs font-bold text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-3 font-mono flex items-center justify-between">
+                            <span>Interpolação Didática da Mediana para Dados Agrupados</span>
+                            <span class="text-[10px] text-indigo-400 font-normal">Fórmula FATEC Aula IV</span>
+                        </h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs text-slate-300">
+                            <div class="space-y-3">
+                                <p class="leading-relaxed">A posição da mediana reside na metade da amostra: <span class="font-mono text-white font-bold">n / 2 = ${pos.toFixed(2)}</span>.</p>
+                                <p class="leading-relaxed">Localizando na coluna <span class="font-bold text-white font-mono">Fi</span>, a classe da mediana é a <span class="font-bold text-indigo-300 font-mono">${idxClassMe + 1}ª classe: ${cMe.classeStr}</span>.</p>
+                                <p class="leading-relaxed font-bold text-slate-200 uppercase tracking-wide text-[10px] mt-4 font-mono">Fórmula Aplicada:</p>
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 font-mono text-[12px] text-indigo-300 flex items-center justify-center">
+                                    Md = Li + [ ((n/2) - Fant) / fme ] * h
+                                </div>
+                            </div>
+                            <div class="space-y-2 font-mono bg-slate-950/70 p-4 rounded-xl border border-slate-800/60 leading-relaxed text-[11px]">
+                                <p class="text-slate-400">// Parâmetros mapeados no Roteiro:</p>
+                                <p>• Li (Limite Inferior da classe) = <span class="text-white">${li.toFixed(dec)}</span></p>
+                                <p>• n/2 (Posição Central) = <span class="text-white">${pos.toFixed(2)}</span></p>
+                                <p>• Fant (Frequência acumulada da classe anterior) = <span class="text-white">${Fant}</span></p>
+                                <p>• fme (Frequência simples da classe mediana) = <span class="text-white">${fme}</span></p>
+                                <p>• h (Amplitude da classe) = <span class="text-white">${h.toFixed(dec)}</span></p>
+                                <div class="border-t border-slate-800/80 pt-2 mt-2">
+                                    <p class="text-slate-400">// Substituindo e calculando:</p>
+                                    <p>Md = ${li.toFixed(dec)} + [ ((${pos.toFixed(2)} - ${Fant}) / ${fme}) ] * ${h.toFixed(dec)}</p>
+                                    <p>Md = ${li.toFixed(dec)} + [ (${(pos - Fant).toFixed(2)}) / ${fme} ] * ${h.toFixed(dec)}</p>
+                                    <p class="text-emerald-400 font-bold text-xs mt-1">Md ≈ ${MeAgrupada.toFixed(dec)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    memorialDiv.classList.add('hidden');
+                }
+            }
+
+            // 5. ATUALIZAR GRÁFICOS (CHART.JS)
+            buildDescriptiveCharts(tables);
+        }
+
+        function buildDescriptiveCharts(tables) {
+            // Histograma
+            const ctxHist = document.getElementById('descritiva-chart-hist').getContext('2d');
+            if (descritivaChartHistInstance) descritivaChartHistInstance.destroy();
+
+            if (tables.semClasses || tables.classes.length === 0) {
+                // Desenha gráfico limpo se não houver dados
+                descritivaChartHistInstance = new Chart(ctxHist, { type: 'bar', data: {}, options: {} });
+            } else {
+                const labels = tables.classes.map(c => c.classeStr);
+                const data = tables.classes.map(c => c.fi);
+
+                descritivaChartHistInstance = new Chart(ctxHist, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Frequência Absoluta (fi)',
+                            data: data,
+                            backgroundColor: 'rgba(99, 102, 241, 0.45)', // Indigo com opacidade
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 1.5,
+                            barPercentage: 1.0, // Histograma encosta as barras de forma didática
+                            categoryPercentage: 1.0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                displayColors: false,
+                                font: { family: 'JetBrains Mono' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } },
+                                grid: { color: 'rgba(51, 65, 85, 0.2)' }
+                            },
+                            y: {
+                                ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 }, stepSize: 1 },
+                                grid: { color: 'rgba(51, 65, 85, 0.2)' },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Pizza (Frequência Simples)
+            const ctxPizza = document.getElementById('descritiva-chart-pizza').getContext('2d');
+            if (descritivaChartPizzaInstance) descritivaChartPizzaInstance.destroy();
+
+            const pLabels = tables.simples.map(r => r.xi.toString());
+            const pData = tables.simples.map(r => r.fr);
+
+            descritivaChartPizzaInstance = new Chart(ctxPizza, {
+                type: 'pie',
+                data: {
+                    labels: pLabels,
+                    datasets: [{
+                        data: pData,
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.65)',
+                            'rgba(16, 185, 129, 0.65)',
+                            'rgba(245, 158, 11, 0.65)',
+                            'rgba(239, 68, 68, 0.65)',
+                            'rgba(168, 85, 247, 0.65)',
+                            'rgba(6, 182, 212, 0.65)',
+                            'rgba(236, 72, 153, 0.65)',
+                            'rgba(100, 116, 139, 0.65)'
+                        ],
+                        borderColor: '#020617',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { family: 'JetBrains Mono', size: 9 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function clearDescriptive() {
+            document.getElementById('descritiva-dados').value = "";
+            document.getElementById('descritiva-error').classList.add('hidden');
+            document.getElementById('descritiva-kpi-container').innerHTML = "";
+            document.getElementById('descritiva-tbl-simples').innerHTML = `<p class="text-slate-500 text-xs italic">Limpo.</p>`;
+            document.getElementById('descritiva-tbl-classes').innerHTML = `<p class="text-slate-500 text-xs italic">Limpo.</p>`;
+            document.getElementById('descritiva-info-classes-config').textContent = "";
+            document.getElementById('descritiva-memorial-agrupada').classList.add('hidden');
+            if (descritivaChartHistInstance) { descritivaChartHistInstance.destroy(); descritivaChartHistInstance = null; }
+            if (descritivaChartPizzaInstance) { descritivaChartPizzaInstance.destroy(); descritivaChartPizzaInstance = null; }
+        }
+
+        // ==========================================
+        // LÓGICA DO MÓDULO 2: DISTRIB. DISCRETAS
+        // ==========================================
+        function runBinomial() {
+            const n = parseInt(document.getElementById('binom-n').value);
+            const k = parseInt(document.getElementById('binom-k').value);
+            const p = parseFloat(document.getElementById('binom-p').value);
+
+            if (isNaN(n) || n < 1 || isNaN(k) || k < 0 || isNaN(p) || p < 0 || p > 1) {
+                return;
+            }
+            if (k > n) {
+                document.getElementById('binom-res-exact').textContent = "Erro";
+                document.getElementById('binom-res-max').textContent = "k > n";
+                document.getElementById('binom-res-min').textContent = "Inválido";
+                document.getElementById('binom-steps').innerHTML = `
+                    <div class="p-4 bg-rose-950/20 border border-rose-800 rounded-xl text-rose-300 font-mono">
+                        Erro crítico: O número de sucessos (k = ${k}) não pode exceder o número total de tentativas (n = ${n}).
+                    </div>
+                `;
+                return;
+            }
+
+            // P(X = k)
+            const c_n_k = combinations(n, k);
+            const p_exact = c_n_k * Math.pow(p, k) * Math.pow(1 - p, n - k);
+
+            // P(X <= k) - No máximo
+            let p_le_k = 0;
+            let sumLeString = [];
+            for (let i = 0; i <= k; i++) {
+                const term = combinations(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+                p_le_k += term;
+                sumLeString.push(`P(X=${i}) = ${(term * 100).toFixed(3)}%`);
+            }
+
+            // P(X >= k) - Pelo menos
+            let p_ge_k = 0;
+            let sumGeString = [];
+            for (let i = k; i <= n; i++) {
+                const term = combinations(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+                p_ge_k += term;
+                sumGeString.push(`P(X=${i}) = ${(term * 100).toFixed(3)}%`);
+            }
+
+            // Exibir nos KPIs
+            document.getElementById('binom-res-exact').textContent = (p_exact * 100).toFixed(2) + "%";
+            document.getElementById('binom-res-max').textContent = (p_le_k * 100).toFixed(2) + "%";
+            document.getElementById('binom-res-min').textContent = (p_ge_k * 100).toFixed(2) + "%";
+
+            // Detalhamento pedagógico
+            document.getElementById('binom-steps').innerHTML = `
+                <div class="space-y-4 font-mono">
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Equação Geral da Binomial</p>
+                        <p class="text-indigo-300 font-bold">P(X = k) = C(n, k) * p^k * (1 - p)^(n - k)</p>
+                        <p class="text-slate-400 mt-1 text-[11px]">Substituindo parâmetros: <span class="text-white font-bold">n = ${n}, k = ${k}, p = ${p}</span></p>
+                    </div>
+                    
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Coeficiente Combinatório de Bernoulli</p>
+                        <p>C(${n}, ${k}) = ${n}! / (${k}! * (${n} - ${k})!)</p>
+                        <p>C(${n}, ${k}) = ${factorial(n)} / (${factorial(k)} * ${factorial(n - k)}) = <span class="text-white font-bold">${c_n_k}</span> caminhos</p>
+                    </div>
+
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Aplicação do Cálculo do Evento Único</p>
+                        <p>P(X = ${k}) = ${c_n_k} * (${p}^${k}) * (${(1 - p).toFixed(4)}^${n - k})</p>
+                        <p>P(X = ${k}) = ${c_n_k} * ${Math.pow(p, k).toFixed(6)} * ${Math.pow(1 - p, n - k).toFixed(6)}</p>
+                        <p class="text-indigo-400 font-bold text-xs mt-1">P(X = ${k}) = ${p_exact.toFixed(6)} &rArr; ${(p_exact * 100).toFixed(4)}%</p>
+                    </div>
+
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">// 4. Regiões Acumuladas</p>
+                        <div>
+                            <p class="text-emerald-400 font-bold">No Máximo P(X &le; ${k}): ${(p_le_k * 100).toFixed(4)}%</p>
+                            <p class="text-[10px] text-slate-500 leading-relaxed pl-3 border-l border-slate-800">${sumLeString.join("<br>")}</p>
+                        </div>
+                        <div class="pt-2">
+                            <p class="text-amber-400 font-bold">Pelo Menos P(X &ge; ${k}): ${(p_ge_k * 100).toFixed(4)}%</p>
+                            <p class="text-[10px] text-slate-500 leading-relaxed pl-3 border-l border-slate-800">${sumGeString.join("<br>")}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function runPoisson() {
+            const lambda = parseFloat(document.getElementById('poisson-lambda').value);
+            const k = parseInt(document.getElementById('poisson-k').value);
+
+            if (isNaN(lambda) || lambda <= 0 || isNaN(k) || k < 0) {
+                return;
+            }
+
+            // P(X = k)
+            const exact_p = (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+
+            // P(X <= k) - No Máximo
+            let p_le_k = 0;
+            let sumLeString = [];
+            for (let i = 0; i <= k; i++) {
+                const term = (Math.pow(lambda, i) * Math.exp(-lambda)) / factorial(i);
+                p_le_k += term;
+                sumLeString.push(`P(X=${i}) = ${(term * 100).toFixed(3)}%`);
+            }
+
+            // P(X >= k) - Pelo Menos (Usando o complementar didático)
+            let p_less_k = 0;
+            let sumComplementarString = [];
+            for (let i = 0; i < k; i++) {
+                const term = (Math.pow(lambda, i) * Math.exp(-lambda)) / factorial(i);
+                p_less_k += term;
+                sumComplementarString.push(`P(X=${i}) = ${(term * 100).toFixed(3)}%`);
+            }
+            const p_ge_k = 1 - p_less_k;
+
+            // Exibir nos KPIs
+            document.getElementById('poisson-res-exact').textContent = (exact_p * 100).toFixed(2) + "%";
+            document.getElementById('poisson-res-max').textContent = (p_le_k * 100).toFixed(2) + "%";
+            document.getElementById('poisson-res-min').textContent = (p_ge_k * 100).toFixed(2) + "%";
+
+            // Detalhamento pedagógico
+            document.getElementById('poisson-steps').innerHTML = `
+                <div class="space-y-4 font-mono">
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Equação Geral de Poisson</p>
+                        <p class="text-indigo-300 font-bold">P(X = k) = (e^-&lambda; * &lambda;^k) / k!</p>
+                        <p class="text-slate-400 mt-1 text-[11px]">Substituindo parâmetros: <span class="text-white font-bold">&lambda; = ${lambda}, k = ${k}</span></p>
+                        <p class="text-[10px] text-slate-500 mt-1">e &approx; 2.71828 (e^-${lambda} &approx; ${Math.exp(-lambda).toFixed(6)})</p>
+                    </div>
+
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Aplicação para Evento Único P(X = ${k})</p>
+                        <p>P(X = ${k}) = (e^-${lambda} * ${lambda}^${k}) / ${k}!</p>
+                        <p>P(X = ${k}) = (${Math.exp(-lambda).toFixed(6)} * ${Math.pow(lambda, k)}) / ${factorial(k)}</p>
+                        <p class="text-indigo-400 font-bold text-xs mt-1">P(X = ${k}) = ${exact_p.toFixed(6)} &rArr; ${(exact_p * 100).toFixed(4)}%</p>
+                    </div>
+
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">// 3. Regiões Acumuladas</p>
+                        <div>
+                            <p class="text-emerald-400 font-bold">No Máximo P(X &le; ${k}): ${(p_le_k * 100).toFixed(4)}%</p>
+                            <p class="text-[10px] text-slate-500 leading-relaxed pl-3 border-l border-slate-800">${sumLeString.join("<br>")}</p>
+                        </div>
+                        <div class="pt-2">
+                            <p class="text-amber-400 font-bold">Pelo Menos P(X &ge; ${k}): ${(p_ge_k * 100).toFixed(4)}%</p>
+                            <p class="text-[11px] text-slate-400 italic mb-1">Calculado via complementar didático 1 - P(X < ${k}):</p>
+                            <p class="text-[10px] text-slate-500 leading-relaxed pl-3 border-l border-slate-800 mb-1.5">${k > 0 ? sumComplementarString.join("<br>") : "Sem termos anteriores (0)"}</p>
+                            <p class="text-[11px]">P(X &ge; ${k}) = 1 - ${p_less_k.toFixed(6)} = <span class="text-amber-300 font-bold font-mono">${p_ge_k.toFixed(6)}</span></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // LÓGICA DO MÓDULO 3: DISTRIBUIÇÃO NORMAL
+        // ==========================================
+        function toggleNormalInputs() {
+            const type = document.getElementById('normal-tipo').value;
+            const x2Wrapper = document.getElementById('normal-x2-wrapper');
+            const lblX1 = document.getElementById('normal-lbl-x1');
+
+            if (type === 'between') {
+                x2Wrapper.classList.remove('hidden');
+                lblX1.textContent = "Valor Limite Inferior (X1)";
+            } else {
+                x2Wrapper.classList.add('hidden');
+                lblX1.textContent = "Valor Limite (X1)";
+            }
+        }
+
+        function runNormal() {
+            const media = parseFloat(document.getElementById('normal-media').value);
+            const desvio = parseFloat(document.getElementById('normal-desvio').value);
+            const type = document.getElementById('normal-tipo').value;
+            const x1 = parseFloat(document.getElementById('normal-x1').value);
+            const x2 = parseFloat(document.getElementById('normal-x2').value);
+
+            if (isNaN(media) || isNaN(desvio) || desvio <= 0 || isNaN(x1)) {
+                return;
+            }
+
+            let resultProb = 0;
+            let displayExpr = "";
+            let stepsHTML = "";
+
+            const z1 = (x1 - media) / desvio;
+            const areaZ1 = getGaussianTableValue(z1);
+
+            if (type === 'greater') {
+                if (z1 >= 0) {
+                    resultProb = 0.5 - areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização da Nota X1 (Escore Z)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z = (X - &mu;) / &sigma; = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta de Integral na Tabela Normal (0 a Z)</p>
+                                <p class="text-slate-300 text-xs">Área do centro (0) até Z = ${z1.toFixed(2)}:</p>
+                                <p class="text-indigo-300 font-bold text-xs">P(0 < Z < ${z1.toFixed(2)}) = <span class="text-white">${areaZ1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Dedução por Simetria da Metade Superior</p>
+                                <p class="text-slate-300 text-xs">Como Z é positivo e queremos P(Z > z1), subtraímos a área intermediária da metade superior de 50%:</p>
+                                <p class="text-indigo-300 text-xs">P(Z > ${z1.toFixed(2)}) = 0.5000 - P(0 < Z < ${z1.toFixed(2)})</p>
+                                <p class="text-indigo-300 text-xs">P(Z > ${z1.toFixed(2)}) = 0.5000 - ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade do evento ser maior que ${x1} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultProb = 0.5 + areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização da Nota X1 (Escore Z)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z = (X - &mu;) / &sigma; = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta de Integral na Tabela Normal (0 a Z)</p>
+                                <p class="text-slate-300 text-xs">Pela simetria do sino, o escore negativo Z = ${z1.toFixed(2)} possui a mesma área positiva equivalente:</p>
+                                <p class="text-indigo-300 font-bold text-xs">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = <span class="text-white">${areaZ1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Dedução por Simetria (Soma de Áreas)</p>
+                                <p class="text-slate-300 text-xs">Como Z é negativo (abaixo da média), a probabilidade de ser maior engloba toda a metade direita (50%) mais a faixa central:</p>
+                                <p class="text-indigo-300 text-xs">P(Z > ${z1.toFixed(2)}) = 0.5000 + P(0 < Z < ${Math.abs(z1).toFixed(2)})</p>
+                                <p class="text-indigo-300 text-xs">P(Z > ${z1.toFixed(2)}) = 0.5000 + ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade do evento ser maior que ${x1} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(X > ${x1.toFixed(2)}) &rArr; P(Z > ${z1.toFixed(2)})`;
+            } else if (type === 'less') {
+                if (z1 >= 0) {
+                    resultProb = 0.5 + areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização da Nota X1 (Escore Z)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z = (X - &mu;) / &sigma; = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta de Integral na Tabela Normal (0 a Z)</p>
+                                <p class="text-slate-300 text-xs">Área do centro (0) até Z = ${z1.toFixed(2)}:</p>
+                                <p class="text-indigo-300 font-bold text-xs">P(0 < Z < ${z1.toFixed(2)}) = <span class="text-white">${areaZ1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Dedução por Simetria (Soma de Áreas)</p>
+                                <p class="text-slate-300 text-xs">Como Z é positivo, a área acumulada abaixo de Z cobre a metade esquerda inteira (50%) mais a faixa central:</p>
+                                <p class="text-indigo-300 text-xs">P(Z < ${z1.toFixed(2)}) = 0.5000 + P(0 < Z < ${z1.toFixed(2)})</p>
+                                <p class="text-indigo-300 text-xs">P(Z < ${z1.toFixed(2)}) = 0.5000 + ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade do evento ser menor que ${x1} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultProb = 0.5 - areaZ1;
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização da Nota X1 (Escore Z)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z = (X - &mu;) / &sigma; = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta de Integral na Tabela Normal (0 a Z)</p>
+                                <p class="text-slate-300 text-xs">Pegamos o equivalente positivo Z = ${Math.abs(z1).toFixed(2)}:</p>
+                                <p class="text-indigo-300 font-bold text-xs">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = <span class="text-white">${areaZ1.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Dedução por Simetria (Dedução de Extremo)</p>
+                                <p class="text-slate-300 text-xs">Sendo Z negativo e querendo a área à sua esquerda (extremo), subtraímos a faixa central de 50%:</p>
+                                <p class="text-indigo-300 text-xs">P(Z < ${z1.toFixed(2)}) = 0.5000 - P(0 < Z < ${Math.abs(z1).toFixed(2)})</p>
+                                <p class="text-indigo-300 text-xs">P(Z < ${z1.toFixed(2)}) = 0.5000 - ${areaZ1.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade do evento ser menor que ${x1} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(X < ${x1.toFixed(2)}) &rArr; P(Z < ${z1.toFixed(2)})`;
+            } else {
+                // Entre dois valores
+                if (isNaN(x2) || x2 <= x1) {
+                    document.getElementById('normal-res-percentage').textContent = "Erro";
+                    document.getElementById('normal-res-expression').textContent = "X2 deve ser maior que X1";
+                    return;
+                }
+
+                const z2 = (x2 - media) / desvio;
+                const areaZ2 = getGaussianTableValue(z2);
+
+                if (z1 * z2 >= 0) {
+                    // Ambos do mesmo lado (mesmo sinal) -> Subtrai áreas
+                    resultProb = Math.abs(areaZ2 - areaZ1);
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização dos Limites (Z1 e Z2)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z1 = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                                <p class="text-indigo-300 font-bold text-xs">Z2 = (${x2} - ${media}) / ${desvio} = <span class="text-white">${z2.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta dos Mapeamentos Individuais</p>
+                                <p class="text-indigo-300 text-xs">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = ${areaZ1.toFixed(4)}</p>
+                                <p class="text-indigo-300 text-xs">P(0 < Z < ${Math.abs(z2).toFixed(2)}) = ${areaZ2.toFixed(4)}</p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Subtração das Áreas (Mesmo Quadrante)</p>
+                                <p class="text-slate-300 text-xs">Como ambos os escores estão do mesmo lado da média (mesmo sinal), a probabilidade do intervalo é a diferença das duas áreas:</p>
+                                <p class="text-indigo-300 text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = | ${areaZ2.toFixed(4)} - ${areaZ1.toFixed(4)} | = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade da nota residir entre ${x1} e ${x2} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Lados opostos -> Soma áreas
+                    resultProb = areaZ1 + areaZ2;
+                    stepsHTML = `
+                        <div class="space-y-3 font-mono">
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 1. Padronização dos Limites (Z1 e Z2)</p>
+                                <p class="text-indigo-300 font-bold text-xs">Z1 = (${x1} - ${media}) / ${desvio} = <span class="text-white">${z1.toFixed(4)}</span></p>
+                                <p class="text-indigo-300 font-bold text-xs">Z2 = (${x2} - ${media}) / ${desvio} = <span class="text-white">${z2.toFixed(4)}</span></p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 2. Consulta dos Mapeamentos Individuais</p>
+                                <p class="text-indigo-300 text-xs">P(0 < Z < ${Math.abs(z1).toFixed(2)}) = ${areaZ1.toFixed(4)}</p>
+                                <p class="text-indigo-300 text-xs">P(0 < Z < ${Math.abs(z2).toFixed(2)}) = ${areaZ2.toFixed(4)}</p>
+                            </div>
+                            <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <p class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mb-1.5">// 3. Somatório das Áreas (Quadrantes Opostos)</p>
+                                <p class="text-slate-300 text-xs">Como os limites estão em lados opostos em relação ao centro (média), somamos as duas fatias de área:</p>
+                                <p class="text-indigo-300 text-xs">P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)}) = ${areaZ1.toFixed(4)} + ${areaZ2.toFixed(4)} = <span class="text-emerald-400 font-bold">${resultProb.toFixed(4)}</span></p>
+                                <p class="text-emerald-400 font-bold text-xs mt-2">A probabilidade da nota residir entre ${x1} e ${x2} é de ${(resultProb * 100).toFixed(4)}%</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                displayExpr = `P(${x1.toFixed(2)} < X < ${x2.toFixed(2)}) &rArr; P(${z1.toFixed(2)} < Z < ${z2.toFixed(2)})`;
+            }
+
+            // UI
+            document.getElementById('normal-res-percentage').textContent = (resultProb * 100).toFixed(2) + "%";
+            document.getElementById('normal-res-expression').innerHTML = displayExpr;
+            document.getElementById('normal-steps').innerHTML = stepsHTML;
+
+            // Render Gauss SVG
+            drawGaussSVG(z1, type === 'between' ? (x2 - media) / desvio : null, type);
+        }
+
+        function drawGaussSVG(z1, z2, type) {
+            const svg = document.getElementById('normal-svg-gauss');
+            svg.innerHTML = "";
+
+            // Linha base de sustentação
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", "10");
+            line.setAttribute("y1", "80");
+            line.setAttribute("x2", "190");
+            line.setAttribute("y2", "80");
+            line.setAttribute("stroke", "#334155");
+            line.setAttribute("stroke-width", "1");
+            svg.appendChild(line);
+
+            // Mapeador de pontos da curva: y = 80 - 65 * exp(-x^2 / 2)
+            let pathD = "M 10 80";
+            let points = [];
+            for (let px = 10; px <= 190; px++) {
+                // Pixel X mapeado no domínio Z [-3, 3]
+                const zVal = ((px - 100) / 90) * 3;
+                const py = 80 - 65 * Math.exp(-0.5 * zVal * zVal);
+                pathD += ` L ${px} ${py}`;
+                points.push({ x: px, y: py, z: zVal });
+            }
+            pathD += " L 190 80 Z";
+
+            // Cálculo do sombreamento sob a curva
+            let fillPathD = "M";
+            let activeShade = false;
+
+            points.forEach((pt, i) => {
+                let shouldShade = false;
+                if (type === 'greater') {
+                    shouldShade = pt.z >= z1;
+                } else if (type === 'less') {
+                    shouldShade = pt.z <= z1;
+                } else if (type === 'between') {
+                    const zMin = Math.min(z1, z2);
+                    const zMax = Math.max(z1, z2);
+                    shouldShade = pt.z >= zMin && pt.z <= zMax;
+                }
+
+                if (shouldShade) {
+                    if (!activeShade) {
+                        fillPathD += ` ${pt.x} 80 L ${pt.x} ${pt.y}`;
+                        activeShade = true;
+                    } else {
+                        fillPathD += ` L ${pt.x} ${pt.y}`;
+                    }
+                } else {
+                    if (activeShade) {
+                        fillPathD += ` L ${points[i - 1].x} 80 Z`;
+                        const shadowSeg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        shadowSeg.setAttribute("d", fillPathD);
+                        shadowSeg.setAttribute("fill", "#6366f1");
+                        shadowSeg.setAttribute("fill-opacity", "0.35");
+                        svg.appendChild(shadowSeg);
+
+                        fillPathD = "M";
+                        activeShade = false;
+                    }
+                }
+            });
+
+            if (activeShade) {
+                fillPathD += " L 190 80 Z";
+                const shadowSeg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                shadowSeg.setAttribute("d", fillPathD);
+                shadowSeg.setAttribute("fill", "#6366f1");
+                shadowSeg.setAttribute("fill-opacity", "0.35");
+                svg.appendChild(shadowSeg);
+            }
+
+            // Curva principal do Sino
+            const sino = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            sino.setAttribute("d", pathD.replace(" Z", ""));
+            sino.setAttribute("fill", "none");
+            sino.setAttribute("stroke", "#818cf8");
+            sino.setAttribute("stroke-width", "2");
+            svg.appendChild(sino);
+
+            // Média (Z = 0) tracejada
+            const meanLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            meanLine.setAttribute("x1", "100");
+            meanLine.setAttribute("y1", "15");
+            meanLine.setAttribute("x2", "100");
+            meanLine.setAttribute("y2", "80");
+            meanLine.setAttribute("stroke", "#475569");
+            meanLine.setAttribute("stroke-dasharray", "2,2");
+            svg.appendChild(meanLine);
+
+            const meanLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            meanLabel.setAttribute("x", "100");
+            meanLabel.setAttribute("y", "90");
+            meanLabel.setAttribute("text-anchor", "middle");
+            meanLabel.setAttribute("fill", "#64748b");
+            meanLabel.setAttribute("font-size", "6px");
+            meanLabel.setAttribute("font-family", "JetBrains Mono");
+            meanLabel.textContent = "Z=0";
+            svg.appendChild(meanLabel);
+
+            // Marcador Z1 (Linha Vermelha)
+            const p1x = 100 + (z1 / 3) * 90;
+            if (p1x >= 10 && p1x <= 190) {
+                const z1Line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                z1Line.setAttribute("x1", p1x.toString());
+                z1Line.setAttribute("y1", "12");
+                z1Line.setAttribute("x2", p1x.toString());
+                z1Line.setAttribute("y2", "80");
+                z1Line.setAttribute("stroke", "#f43f5e");
+                z1Line.setAttribute("stroke-width", "1.5");
+                svg.appendChild(z1Line);
+
+                const z1Label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                z1Label.setAttribute("x", p1x.toString());
+                z1Label.setAttribute("y", "90");
+                z1Label.setAttribute("text-anchor", "middle");
+                z1Label.setAttribute("fill", "#f43f5e");
+                z1Label.setAttribute("font-size", "6px");
+                z1Label.setAttribute("font-family", "JetBrains Mono");
+                z1Label.setAttribute("font-weight", "bold");
+                z1Label.textContent = `Z1=${z1.toFixed(2)}`;
+                svg.appendChild(z1Label);
+            }
+
+            // Marcador Z2 (Linha Amarela se houver 'between')
+            if (type === 'between' && z2 !== null) {
+                const p2x = 100 + (z2 / 3) * 90;
+                if (p2x >= 10 && p2x <= 190) {
+                    const z2Line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    z2Line.setAttribute("x1", p2x.toString());
+                    z2Line.setAttribute("y1", "12");
+                    z2Line.setAttribute("x2", p2x.toString());
+                    z2Line.setAttribute("y2", "80");
+                    z2Line.setAttribute("stroke", "#fbbf24");
+                    z2Line.setAttribute("stroke-width", "1.5");
+                    svg.appendChild(z2Line);
+
+                    const z2Label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    z2Label.setAttribute("x", p2x.toString());
+                    z2Label.setAttribute("y", "90");
+                    z2Label.setAttribute("text-anchor", "middle");
+                    z2Label.setAttribute("fill", "#fbbf24");
+                    z2Label.setAttribute("font-size", "6px");
+                    z2Label.setAttribute("font-family", "JetBrains Mono");
+                    z2Label.setAttribute("font-weight", "bold");
+                    z2Label.textContent = `Z2=${z2.toFixed(2)}`;
+                    svg.appendChild(z2Label);
+                }
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DO MÓDULO 4: CORRELAÇÃO & REGRESSÃO
+        // ==========================================
+        let correlationPoints = [];
+
+        function loadSampleCorrelation() {
+            // Notas da lousa didática: Computação I (X) e Computação II (Y) (Aulas VI)
+            correlationPoints = [
+                { id: 1, x: 10, y: 10 },
+                { id: 2, x: 9, y: 8 },
+                { id: 3, x: 8, y: 9 },
+                { id: 4, x: 8, y: 6 },
+                { id: 5, x: 7, y: 8 },
+                { id: 6, x: 7, y: 7 },
+                { id: 7, x: 6, y: 5 },
+                { id: 8, x: 5, y: 6 },
+                { id: 9, x: 3, y: 4 },
+                { id: 10, x: 2, y: 2 }
+            ];
+            recalculateCorrelation();
+        }
+
+        function clearCorrelationPoints() {
+            correlationPoints = [];
+            recalculateCorrelation();
+        }
+
+        function addCorrelationPoint() {
+            const inputX = parseFloat(document.getElementById('reg-new-x').value);
+            const inputY = parseFloat(document.getElementById('reg-new-y').value);
+
+            if (isNaN(inputX) || isNaN(inputY)) {
+                return;
+            }
+
+            const nextId = correlationPoints.length > 0 ? Math.max(...correlationPoints.map(p => p.id)) + 1 : 1;
+            correlationPoints.push({ id: nextId, x: inputX, y: inputY });
+            recalculateCorrelation();
+        }
+
+        function deleteCorrelationPoint(id) {
+            correlationPoints = correlationPoints.filter(p => p.id !== id);
+            recalculateCorrelation();
+        }
+
+        function recalculateCorrelation() {
+            renderCorrelationPointsList();
+
+            const n = correlationPoints.length;
+            document.getElementById('reg-val-n').textContent = n;
+
+            if (n < 2) {
+                document.getElementById('reg-val-r').textContent = "---";
+                document.getElementById('reg-classification').textContent = "Pares < 2";
+                document.getElementById('reg-classification').className = "text-[9px] font-extrabold px-2 py-0.5 rounded inline-block mt-1 bg-slate-800 text-slate-500";
+                document.getElementById('reg-equation').textContent = "y = ax + b";
+                document.getElementById('reg-coefs').textContent = "Requer no mínimo 2 pontos";
+                drawScatterPlot(null, null);
+                return;
+            }
+
+            // Somatórias (Aula VI)
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+            correlationPoints.forEach(p => {
+                sumX += p.x;
+                sumY += p.y;
+                sumXY += p.x * p.y;
+                sumX2 += p.x * p.x;
+                sumY2 += p.y * p.y;
+            });
+
+            // Pearson r
+            const numR = (n * sumXY) - (sumX * sumY);
+            const denR = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
+            
+            let r = 0;
+            if (denR !== 0) r = numR / denR;
+
+            // Classificação
+            let rClass = "Inexpressiva";
+            let rColor = "bg-rose-950/60 text-rose-400 border border-rose-500/20";
+            const absR = Math.abs(r);
+
+            if (absR >= 0.60) {
+                rClass = "Significativa" + (r >= 0 ? " Pos." : " Neg.");
+                rColor = "bg-emerald-950/60 text-emerald-400 border border-emerald-500/20";
+            } else if (absR >= 0.30) {
+                rClass = "Fraca" + (r >= 0 ? " Pos." : " Neg.");
+                rColor = "bg-amber-950/60 text-amber-400 border border-amber-500/20";
+            }
+
+            document.getElementById('reg-val-r').textContent = r.toFixed(3);
+            const badge = document.getElementById('reg-classification');
+            badge.textContent = rClass;
+            badge.className = `text-[9px] font-extrabold px-2 py-0.5 rounded inline-block mt-1 ${rColor}`;
+
+            // Coeficientes da Reta
+            const denA = (n * sumX2) - (sumX * sumX);
+            let a = 0;
+            if (denA !== 0) a = numR / denA;
+            
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+            const b = meanY - (a * meanX);
+
+            // Equação visual
+            const signB = b >= 0 ? "+ " : "- ";
+            const absB = Math.abs(b);
+            document.getElementById('reg-equation').textContent = `y = ${a.toFixed(2)}x ${signB}${absB.toFixed(2)}`;
+            document.getElementById('reg-coefs').textContent = `a = ${a.toFixed(4)} | b = ${b.toFixed(4)}`;
+
+            // Armazenar no escopo global da janela para predições de interpolação
+            window.activeRegression = {
+                a, b,
+                minX: Math.min(...correlationPoints.map(p => p.x)),
+                maxX: Math.max(...correlationPoints.map(p => p.x))
+            };
+
+            drawScatterPlot(a, b);
+            runPredictor();
+        }
+
+        function renderCorrelationPointsList() {
+            const list = document.getElementById('reg-points-list');
+            list.innerHTML = "";
+
+            correlationPoints.forEach(p => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between px-4 py-2 hover:bg-slate-800/20 transition-all text-xs font-mono text-slate-300";
+                row.innerHTML = `
+                    <span>Ponto (x: <strong class="text-indigo-400 font-bold">${p.x}</strong>, y: <strong class="text-emerald-400 font-bold">${p.y}</strong>)</span>
+                    <button onclick="deleteCorrelationPoint(${p.id})" class="text-slate-500 hover:text-rose-400 p-1 transition-all rounded hover:bg-slate-900">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function drawScatterPlot(a, b) {
+            const svg = document.getElementById('reg-svg-scatter');
+            svg.innerHTML = "";
+
+            if (correlationPoints.length === 0) return;
+
+            const xs = correlationPoints.map(p => p.x);
+            const ys = correlationPoints.map(p => p.y);
+
+            const minX = Math.max(0, Math.min(...xs) - 2);
+            const maxX = Math.max(...xs) + 2;
+            const minY = Math.max(0, Math.min(...ys) - 2);
+            const maxY = Math.max(...ys) + 2;
+
+            // Fator de conversão matemática para pixels SVG (W=400, H=240, padding=30)
+            const pad = 30;
+            const wPlot = 400 - pad * 2;
+            const hPlot = 240 - pad * 2;
+
+            function toSvgX(val) {
+                return pad + ((val - minX) / (maxX - minX)) * wPlot;
+            }
+            function toSvgY(val) {
+                return pad + hPlot - ((val - minY) / (maxY - minY)) * hPlot;
+            }
+
+            // Grade do Eixo X
+            for (let i = Math.ceil(minX); i <= Math.floor(maxX); i++) {
+                const sx = toSvgX(i);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", sx.toString());
+                line.setAttribute("y1", pad.toString());
+                line.setAttribute("x2", sx.toString());
+                line.setAttribute("y2", (pad + hPlot).toString());
+                line.setAttribute("stroke", "#1e293b");
+                line.setAttribute("stroke-width", "0.7");
+                svg.appendChild(line);
+
+                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", sx.toString());
+                txt.setAttribute("y", (pad + hPlot + 12).toString());
+                txt.setAttribute("text-anchor", "middle");
+                txt.setAttribute("fill", "#64748b");
+                txt.setAttribute("font-size", "7px");
+                txt.setAttribute("font-family", "JetBrains Mono");
+                txt.textContent = i.toString();
+                svg.appendChild(txt);
+            }
+
+            // Grade do Eixo Y
+            for (let i = Math.ceil(minY); i <= Math.floor(maxY); i++) {
+                const sy = toSvgY(i);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", pad.toString());
+                line.setAttribute("y1", sy.toString());
+                line.setAttribute("x2", (pad + wPlot).toString());
+                line.setAttribute("y2", sy.toString());
+                line.setAttribute("stroke", "#1e293b");
+                line.setAttribute("stroke-width", "0.7");
+                svg.appendChild(line);
+
+                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", (pad - 8).toString());
+                txt.setAttribute("y", (sy + 2.5).toString());
+                txt.setAttribute("text-anchor", "end");
+                txt.setAttribute("fill", "#64748b");
+                txt.setAttribute("font-size", "7px");
+                txt.setAttribute("font-family", "JetBrains Mono");
+                txt.textContent = i.toString();
+                svg.appendChild(txt);
+            }
+
+            // Reta de Regressão Linear (Reta Imagem)
+            if (a !== null && b !== null) {
+                const x0 = minX;
+                const y0 = a * x0 + b;
+                const x1_pos = maxX;
+                const y1_pos = a * x1_pos + b;
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", toSvgX(x0).toString());
+                line.setAttribute("y1", toSvgY(y0).toString());
+                line.setAttribute("x2", toSvgX(x1_pos).toString());
+                line.setAttribute("y2", toSvgY(y1_pos).toString());
+                line.setAttribute("stroke", "#10b981");
+                line.setAttribute("stroke-width", "2");
+                line.setAttribute("stroke-linecap", "round");
+                svg.appendChild(line);
+            }
+
+            // Plotagem dos Pontos da Amostra
+            correlationPoints.forEach(p => {
+                const cx = toSvgX(p.x);
+                const cy = toSvgY(p.y);
+
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", cx.toString());
+                circle.setAttribute("cy", cy.toString());
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", "#6366f1");
+                circle.setAttribute("stroke", "#1e1b4b");
+                circle.setAttribute("stroke-width", "1");
+                svg.appendChild(circle);
+            });
+        }
+
+        function runPredictor() {
+            if (!window.activeRegression) return;
+            const px = parseFloat(document.getElementById('predict-x').value);
+            if (isNaN(px)) return;
+
+            const { a, b, minX, maxX } = window.activeRegression;
+            const py = a * px + b;
+
+            document.getElementById('predict-out-y').textContent = py.toFixed(2);
+
+            const badge = document.getElementById('predict-classification-badge');
+            const explanation = document.getElementById('predict-explanation');
+
+            if (px >= minX && px <= maxX) {
+                badge.textContent = "Interpolação";
+                badge.className = "text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/25";
+                explanation.innerHTML = `O ponto X solicitado (${px}) está contido no range amostral observado <span class="font-bold text-white">[${minX} a ${maxX}]</span>.`;
+            } else {
+                badge.textContent = "Extrapolação";
+                badge.className = "text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500/25";
+                explanation.innerHTML = `O ponto X solicitado (${px}) está fora do intervalo amostral <span class="font-bold text-white">[${minX} a ${maxX}]</span> (Realizando Extrapolação).`;
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DO MÓDULO 5: TESTE DE HIPÓTESES
+        // ==========================================
+        const hypothesisTemplates = {
+            diet: {
+                h0: "A perda de peso média provocada é igual a 5 kg.",
+                ha: "A perda de peso média provocada é diferente de 5 kg.",
+                alpha: 0.05,
+                pvalue: 0.03,
+                err1: "Concluir cientificamente que a dieta de 30 dias NÃO cumpre a meta de perda média de 5 kg, quando na verdade o emagrecimento exato ocorre de fato.",
+                err1Prac: "<strong>Impacto Prático:</strong> A nutricionista reformulará um plano alimentar que já funciona perfeitamente, gastando tempo e dinheiro do consultório. Pacientes deixam de se beneficiar de uma dieta eficaz.",
+                err2: "Concluir cientificamente que a dieta funciona entregando os 5 kg de emagrecimento prometidos, quando na realidade ela falha e entrega menos.",
+                err2Prac: "<strong>Impacto Prático:</strong> Propaganda enganosa e frustração crônica. Pacientes seguirão a dieta estrita sem obter os resultados de perda esperados, arranhando a credibilidade da marca a longo prazo."
+            },
+            sensor: {
+                h0: "Não há um incêndio ativo nas dependências do prédio.",
+                ha: "Há um incêndio perigoso ocorrendo nas dependências.",
+                alpha: 0.05,
+                pvalue: 0.001,
+                err1: "Disparar o sinal informando incêndio catastrófico imediato, quando na verdade não há fogo nenhum (apenas vapor do banho ou poeira).",
+                err1Prac: "<strong>Impacto Prático:</strong> Pânico, correria, evacuação injustificada de edifícios industriais complexos e mobilização inútil das equipes de resgate públicas. Desgaste da confiança no sistema de alarmes.",
+                err2: "Manter o status de segurança total, com o alarme em silêncio absoluto, quando na realidade o fogo está consumindo o edifício.",
+                err2Prac: "<strong>Impacto Prático:</strong> Tragédia e perdas de vidas. Pessoas presas sem nenhum aviso prévio de evacuação e danos irreparáveis ao patrimônio da empresa."
+            },
+            court: {
+                h0: "O réu em julgamento é completamente inocente da denúncia.",
+                ha: "O réu em julgamento é culpado dos crimes alegados.",
+                alpha: 0.05,
+                pvalue: 0.60,
+                err1: "Condenar o réu formalmente e sentenciá-lo à prisão perpétua, quando na verdade ele não cometeu infração nenhuma.",
+                err1Prac: "<strong>Impacto Prático:</strong> Injustiça civil grave. Uma pessoa sem culpa tem seus direitos humanos fundamentais violados no cárcere, enquanto o verdadeiro culpado segue solto perante a lei.",
+                err2: "Absolver e libertar inteiramente o réu acusado do crime, quando ele é de fato o culpado real do crime.",
+                err2Prac: "<strong>Impacto Prático:</strong> Retorno de um agressor perigoso à liberdade, aumentando a insegurança social geral e desacreditando a eficiência do judiciário."
+            },
+            custom: {
+                h0: "O efeito nulo ou alegação tradicional é verdadeira.",
+                ha: "Existe uma diferença ou alteração real significativa.",
+                alpha: 0.05,
+                pvalue: 0.05,
+                err1: "Decidir rejeitar a hipótese nula H0, assumindo a novidade estatística, quando o resultado foi apenas flutuação do acaso.",
+                err1Prac: "<strong>Impacto Prático:</strong> Falso Positivo. Mudança desnecessária de processos estabelecidos, prejuízos na alteração operacional e adoção de inovações falsas.",
+                err2: "Manter H0 sob a afirmação de que não existem diferenças reais, quando havia sim um efeito real benéfico não identificado.",
+                err2Prac: "<strong>Impacto Prático:</strong> Falso Negativo. Oportunidades críticas de melhoria industrial, avanços clínicos ou eficiência de software completamente descartadas."
+            }
+        };
+
+        function loadHypothesisScenario() {
+            const sc = document.getElementById('hyp-scenario').value;
+            const template = hypothesisTemplates[sc];
+
+            document.getElementById('hyp-h0').value = template.h0;
+            document.getElementById('hyp-ha').value = template.ha;
+            document.getElementById('hyp-alpha').value = template.alpha;
+            document.getElementById('hyp-pvalue').value = template.pvalue;
+
+            calculateHypothesis();
+        }
+
+        function calculateHypothesis() {
+            const h0 = document.getElementById('hyp-h0').value;
+            const ha = document.getElementById('hyp-ha').value;
+            const alpha = parseFloat(document.getElementById('hyp-alpha').value);
+            const pvalue = parseFloat(document.getElementById('hyp-pvalue').value);
+
+            if (isNaN(alpha) || isNaN(pvalue) || alpha < 0 || alpha > 1 || pvalue < 0 || pvalue > 1) {
+                return;
+            }
+
+            const rejectH0 = pvalue <= alpha;
+
+            const iconContainer = document.getElementById('hyp-decision-icon');
+            const title = document.getElementById('hyp-decision-title');
+            const reason = document.getElementById('hyp-decision-reason');
+            const conclusion = document.getElementById('hyp-conclusion-text');
+
+            if (rejectH0) {
+                iconContainer.className = "p-3.5 rounded-2xl border bg-rose-950/40 text-rose-400 border-rose-500/20";
+                iconContainer.innerHTML = `
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                `;
+                title.textContent = "Rejeitar a Hipótese Nula (H0)";
+                title.className = "text-2xl font-black text-rose-400";
+                reason.innerHTML = `P-valor calculado (<span class="font-bold text-white font-mono">${pvalue.toFixed(4)}</span>) &le; &alpha; (<span class="font-bold text-white font-mono">${alpha.toFixed(4)}</span>). Forte evidência.`;
+                conclusion.innerHTML = `<strong>Conclusão Científica:</strong> A alegação de que "<em>${h0}</em>" deve ser cientificamente <strong>REJEITADA</strong>, indicando que a novidade descrita na hipótese alternativa ("<em>${ha}</em>") possui significância de relevância científica, não sendo mera aleatoriedade das amostras.`;
+            } else {
+                iconContainer.className = "p-3.5 rounded-2xl border bg-emerald-950/40 text-emerald-400 border-emerald-500/20";
+                iconContainer.innerHTML = `
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                `;
+                title.textContent = "Manter a Hipótese Nula (H0)";
+                title.className = "text-2xl font-black text-emerald-400";
+                reason.innerHTML = `P-valor calculado (<span class="font-bold text-white font-mono">${pvalue.toFixed(4)}</span>) > &alpha; (<span class="font-bold text-white font-mono">${alpha.toFixed(4)}</span>).`;
+                conclusion.innerHTML = `<strong>Conclusão Científica:</strong> Não existem evidências estatísticas convincentes para contestar a alegação nula de que "<em>${h0}</em>". Logo, <strong>MANTÉM-SE</strong> H0, tratando qualquer desvio numérico observado como ruído normal das amostras e flutuações casuais do acaso.`;
+            }
+
+            // Exibir textos explicativos de erros I e II baseados no cenário
+            const sc = document.getElementById('hyp-scenario').value;
+            const err1Text = document.getElementById('hyp-err-1-text');
+            const err2Text = document.getElementById('hyp-err-2-text');
+
+            if (sc !== 'custom') {
+                const template = hypothesisTemplates[sc];
+                err1Text.innerHTML = `${template.err1}<br><br>${template.err1Prac}`;
+                err2Text.innerHTML = `${template.err2}<br><br>${template.err2Prac}`;
+            } else {
+                err1Text.innerHTML = `Rejeitar erroneamente que "<em>${h0}</em>", quando ela é correta.<br><br><strong>Impacto Prático:</strong> Falso Positivo. Perda de dinheiro ao alterar desnecessariamente as operações da organização.`;
+                err2Text.innerHTML = `Reter equivocadamente que "<em>${h0}</em>", quando na verdade a diferença "<em>${ha}</em>" existia e era real.<br><br><strong>Impacto Prático:</strong> Falso Negativo. Omissão e perda de uma oportunidade ótima de melhoria técnica ou científica.`;
+            }
+        }
+
+        // ==========================================
+        // INICIALIZAÇÃO AUTOMÁTICA DO SISTEMA
+        // ==========================================
+        window.onload = function() {
+            // Inicializar caixa descritiva
+            document.getElementById('descritiva-dados').value = "10, 12, 13, 15, 15, 16, 18, 20";
+            analyzeDescriptive();
+
+            // Módulo 5 - Hipóteses
+            loadHypothesisScenario();
+        };
+    </script>
+</body>
+</html>
